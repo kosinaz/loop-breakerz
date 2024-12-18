@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/projectile.png-197bcbc76cb11b0c658014dfea4806d1.stex"
+path="res://.import/projectile_skipper.png-e631a1d84d8abf9951d9048a7d1104a5.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/projectile.png"
-dest_files=[ "res://.import/projectile.png-197bcbc76cb11b0c658014dfea4806d1.stex" ]
+source_file="res://assets/projectile_skipper.png"
+dest_files=[ "res://.import/projectile_skipper.png-e631a1d84d8abf9951d9048a7d1104a5.stex" ]
 
 [params]
 
@@ -20,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=false
+flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2

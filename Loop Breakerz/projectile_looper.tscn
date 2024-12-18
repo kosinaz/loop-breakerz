@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://assets/projectile.png" type="Texture" id=1]
+[ext_resource path="res://assets/projectile_looper.png" type="Texture" id=1]
 [ext_resource path="res://projectile.gd" type="Script" id=2]
 [ext_resource path="res://explosion.tscn" type="PackedScene" id=3]
 
@@ -10,9 +10,9 @@ radius = 2.0
 [sub_resource type="Gradient" id=2]
 colors = PoolColorArray( 0.933333, 0.929412, 0.513726, 1, 1, 1, 1, 0 )
 
-[node name="KinematicBody2D" type="KinematicBody2D"]
+[node name="ProjectileLooper" type="KinematicBody2D"]
 collision_layer = 2
-collision_mask = 2
+collision_mask = 4
 script = ExtResource( 2 )
 explosion_scene = ExtResource( 3 )
 

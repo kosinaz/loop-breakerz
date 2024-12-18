@@ -38,16 +38,12 @@ func _process(_delta):
 	if Input.is_mouse_button_pressed(BUTTON_LEFT) and can_shoot:
 		shoot(direction_to_mouse)
 
-func shoot(direction: Vector2):
-	# Create a new projectile instance
+func shoot(direction):
 	var projectile = projectile_scene.instance()
-	get_parent().add_child(projectile)
-	
-	# Set the position and direction of the projectile
 	projectile.global_position = global_position
+	projectile.rotation = rotation
 	projectile.set_direction(direction)
-	
-	# Start the shooting cooldown
+	get_parent().add_child(projectile)
 	can_shoot = false
 	$Timer.start()
 
