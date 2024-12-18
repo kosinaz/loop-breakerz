@@ -1,8 +1,11 @@
 extends KinematicBody2D
 
 # Player speed and velocity
-var speed = 50
+var speed = 75
 var velocity = Vector2()
+
+# Direction the player is moving in (store last pressed direction)
+var move_direction = Vector2()
 
 # Maximum rotation and movement angle delta per frame
 const MAX_ANGLE_DELTA = PI / 16
@@ -23,14 +26,27 @@ func _process(_delta):
 	
 	# Smoothly interpolate the rotation, limiting to MAX_ANGLE_DELTA
 	rotation = lerp_angle(rotation, target_rotation, MAX_ANGLE_DELTA)
+
+	# Handle movement controls with arrow keys
+	if Input.is_action_pressed("ui_up"):  # Move up (forward)
+		move_direction.y = -1
+		move_direction.x = 0  # Stop moving left or right
+	elif Input.is_action_pressed("ui_down"):  # Move down (backward)
+		move_direction.y = 1
+		move_direction.x = 0  # Stop moving left or right
 	
-	# Restrict movement direction based on the limited rotation
-	var restricted_direction = Vector2(cos(rotation), sin(rotation)).normalized()
+	if Input.is_action_pressed("ui_left"):  # Move left (strafe left)
+		move_direction.x = -1
+		move_direction.y = 0
+		
+	elif Input.is_action_pressed("ui_right"):  # Move right (strafe right)
+		move_direction.x = 1
+		move_direction.y = 0
 	
-	# Calculate the restricted velocity
-	velocity = restricted_direction * speed
+	# Set the velocity based on the last direction pressed
+	velocity = move_direction.normalized() * speed
 	
-	# Move the player
+	# Move the player based on velocity
 	# warning-ignore:return_value_discarded
 	move_and_slide(velocity)
 
