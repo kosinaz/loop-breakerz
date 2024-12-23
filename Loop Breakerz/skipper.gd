@@ -27,7 +27,7 @@ func _ready():
 	target_player = get_node("/root/Map/Looper")
 	timer.start(shoot_cooldown)
 
-func _process(delta):
+func _process(_delta):
 	# Make the enemy chase the player
 	if target_player:
 		# Calculate the direction vector to the player
@@ -54,6 +54,7 @@ func _process(delta):
 
 		# Move the enemy
 		velocity = move_direction * speed
+		# warning-ignore:return_value_discarded
 		move_and_slide(velocity)
 
 		# Rotate the enemy to face the player
