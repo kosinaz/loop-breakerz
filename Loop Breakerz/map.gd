@@ -1,7 +1,7 @@
 extends Node2D
 
 # Room and corridor parameters
-export (int) var room_min_size = 7
+export (int) var room_min_size = 5
 export (int) var room_max_size = 10
 export (int) var corridor_width = 3
 export (int) var tile_id = 0  # ID for walkable tiles
@@ -16,7 +16,7 @@ func _ready():
 	# Generate Room A at the origin
 	var room_a = generate_room(Vector2.ZERO)
 
-	# Generate Room B at least 10 tiles away (hardcoded for now)
+	# Generate Room B at least 10 tiles away
 	var room_b_position = Vector2(15, 0)
 	var room_b = generate_room(room_b_position)
 
@@ -42,11 +42,14 @@ func generate_room(origin: Vector2) -> Rect2:
 func connect_rooms(room_a: Rect2, room_b: Rect2):
 	# Find the center of each room
 	var center_a = room_a.position + room_a.size / 2
-	var center_b = room_b.position + room_b.size / 2
+
+	# Determine valid entrance tiles for both rooms
+	var entrance_a = get_valid_entrance(room_a)
+	var entrance_b = get_valid_entrance(room_b)
 
 	# Create a horizontal corridor
-	var start_x = int(min(center_a.x, center_b.x))
-	var end_x = int(max(center_a.x, center_b.x))
+	var start_x = int(min(entrance_a.x, entrance_b.x))
+	var end_x = int(max(entrance_a.x, entrance_b.x))
 
 	for x in range(start_x, end_x + 1):
 		for y in range(corridor_width):
@@ -57,3 +60,31 @@ func connect_rooms(room_a: Rect2, room_b: Rect2):
 	var corridor_region_origin = Vector2(start_x, center_a.y - int(corridor_width / 2))
 	var corridor_region = Vector2(end_x - start_x + 1, corridor_width)
 	tilemap.update_bitmask_region(corridor_region_origin, corridor_region)
+
+func get_valid_entrance(room: Rect2) -> Vector2:
+	# Get valid tiles for corridor entrances, excluding corners
+	var origin = room.position
+	var width = room.size.x
+	var height = room.size.y
+
+	# Horizontal edges: Exclude the corners of the room
+	var top_edge = []
+	var bottom_edge = []
+
+	for x in range(1, width - 1):  # Exclude the corners by starting at 1 and ending before width - 1
+		top_edge.append(origin + Vector2(x, 0))  # Add positions on the top edge
+		bottom_edge.append(origin + Vector2(x, height - 1))  # Add positions on the bottom edge
+
+	# Vertical edges: Exclude the corners of the room
+	var left_edge = []
+	var right_edge = []
+
+	for y in range(1, height - 1):  # Exclude the corners by starting at 1 and ending before height - 1
+		left_edge.append(origin + Vector2(0, y))  #  Add positions on the left edge
+		right_edge.append(origin + Vector2(width - 1, y))  # Add positions on the right edge
+
+	# Combine all valid edges
+	var valid_positions = top_edge + bottom_edge + left_edge + right_edge
+
+	# Choose a random position from the valid tiles
+	return valid_positions[rng.randi_range(0, valid_positions.size() - 1)]
