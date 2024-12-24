@@ -37,7 +37,7 @@ func generate_room(zone_position: Vector2):
 	tilemap.update_bitmask_region(room_position, room_position + size)
 
 	# Return the room's bounds for corridor placement
-	zones[room_position] = {
+	zones[zone_position] = {
 		"position": room_position, 
 		"size": size,
 	}
@@ -50,13 +50,30 @@ func add_neighbors(zone_position: Vector2):
 			free_positions.append(zone_position + offset)
 	if free_positions.size() == 0:
 		return
-	free_positions.shuffle()
+#	free_positions.shuffle()
 	for free_position in free_positions:
 		generate_room(free_position)
+		connect_rooms(zone_position, free_position)
 		if randi() % 2:
 			break
 
-#func connect_zones(zone_position_a: Vector2, zone_position_b: Vector2):
+func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
+	if zone_a_position.x < zone_b_position.x:
+		var room_a_position = zones[zone_a_position].position
+		var room_a_size = zones[zone_a_position].size
+		var wall_a_position = room_a_position + Vector2(room_a_size.x, 0)
+		var door_a_position = wall_a_position + Vector2(0, randi() % int(room_a_size.y - 4) + 2)
+		var corridor_a_position = door_a_position + Vector2(0, -1)
+		var corridor_ab_position = zone_a_position * zone_size + Vector2(zone_size.x - 3, door_a_position.y)
+		for x in range(corridor_a_position.x, corridor_ab_position.x + 3):
+			for y in range(corridor_a_position.y, corridor_a_position.y + 3):
+				tilemap.set_cellv(Vector2(x, y), tile_id)
+		for x in range(3):
+			for y in range(zone_size.y):
+				tilemap.set_cellv(corridor_ab_position + Vector2(x, y), tile_id)
+		tilemap.update_bitmask_region(zone_a_position * zone_size, zone_b_position * zone_size + zone_size)
+				
+			 
 #	var doors = []
 #	# Top
 #	if randi() % 2 + 1:
