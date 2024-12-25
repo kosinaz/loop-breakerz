@@ -1,14 +1,14 @@
 extends KinematicBody2D
 
 # Player speed and velocity
-var speed = 75
+var speed = 100
 var velocity = Vector2()
 
 # Direction the player is moving in (store last pressed direction)
 var move_direction = Vector2()
 
 # Maximum rotation and movement angle delta per frame
-const MAX_ANGLE_DELTA = PI / 16
+const MAX_ANGLE_DELTA = PI / 8
 
 # Shooting control
 var can_shoot = true
@@ -26,43 +26,33 @@ func _process(_delta):
 	
 	# Smoothly interpolate the rotation, limiting to MAX_ANGLE_DELTA
 	rotation = lerp_angle(rotation, target_rotation, MAX_ANGLE_DELTA)
-
-	# Handle movement controls with arrow keys
-	if Input.is_action_pressed("ui_up"):  # Move up (forward)
-		move_direction.y = -1
-		move_direction.x = 0  # Stop moving left or right
-	elif Input.is_action_pressed("ui_down"):  # Move down (backward)
-		move_direction.y = 1
-		move_direction.x = 0  # Stop moving left or right
 	
-	if Input.is_action_pressed("ui_left"):  # Move left (strafe left)
-		move_direction.x = -1
-		move_direction.y = 0
-		
-	elif Input.is_action_pressed("ui_right"):  # Move right (strafe right)
-		move_direction.x = 1
-		move_direction.y = 0
+	# Restrict movement direction based on the limited rotation
+	var restricted_direction = Vector2(cos(rotation), sin(rotation)).normalized()
 	
-	# Set the velocity based on the last direction pressed
-	velocity = move_direction.normalized() * speed
+	# Calculate the restricted velocity
+	velocity = restricted_direction * speed
 	
-	# Move the player based on velocity
+	# Move the player
 	# warning-ignore:return_value_discarded
 	move_and_slide(velocity)
 
-	# Handle shooting
-	if Input.is_mouse_button_pressed(BUTTON_LEFT) and can_shoot:
-		shoot(direction_to_mouse)
-
-func shoot(direction):
+func shoot():
 	var projectile = projectile_scene.instance()
 	projectile.global_position = global_position
 	projectile.rotation = rotation
-	projectile.set_direction(direction)
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	if not enemies:
+		return
+	var closest = enemies[0]
+	for enemy in enemies:
+		if position.distance_to(enemy.position) < position.distance_to(closest.position):
+			closest = enemy
+	if position.distance_to(closest.position) > 200:
+		return
+	projectile.set_direction(position.direction_to(closest.position))
 	get_parent().add_child(projectile)
-	can_shoot = false
-	$Timer.start()
 
 # Callback when the Timer times out
 func _on_timer_timeout():
-	can_shoot = true
+	shoot()

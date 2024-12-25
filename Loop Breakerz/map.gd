@@ -4,10 +4,12 @@ extends Node2D
 var zone_size = Vector2(25, 25)
 var tile_id = 0  # ID for walkable tiles
 var door_scene = preload("res://door.tscn")
+var iterator_scene = preload("res://iterator.tscn")
 var rng = RandomNumberGenerator.new()
 var zones = {}
 var key = KEY_0
 onready var tilemap = $TileMap
+onready var player = $Looper
 
 func _ready():
 	# Seed the RNG
@@ -147,3 +149,17 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 	add_child(door)
 	tilemap.update_bitmask_region(zone_a_position * zone_size, zone_a_position * zone_size + zone_size)
 	tilemap.update_bitmask_region(zone_b_position * zone_size, zone_b_position * zone_size + zone_size)
+
+func _on_timer_timeout():
+	for _i in range(3):
+		var map_position = tilemap.world_to_map(player.position) / zone_size
+		var zone_position = Vector2(floor(map_position.x), floor(map_position.y))
+		if not zones.has(zone_position):
+			return
+		var room_position = zones[zone_position].position
+		var room_size = zones[zone_position].size
+		var x = room_position.x + 3 + randi() % int(room_size.x - 6)
+		var y = room_position.y + 3 + randi() % int(room_size.y - 6)
+		var iterator = iterator_scene.instance()
+		iterator.position = tilemap.map_to_world(Vector2(x, y))
+		add_child(iterator)
