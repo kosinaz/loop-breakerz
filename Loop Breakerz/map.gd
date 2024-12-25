@@ -6,6 +6,7 @@ var tile_id = 0  # ID for walkable tiles
 var door_scene = preload("res://door.tscn")
 var rng = RandomNumberGenerator.new()
 var zones = {}
+var key = KEY_0
 onready var tilemap = $TileMap
 
 func _ready():
@@ -140,6 +141,9 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 	var door = door_scene.instance()
 	door.position = tilemap.map_to_world(door_b_position if switched else door_a_position)
 	door.get_node("Sprite").rotation_degrees = 0 if rotated else 90
+	door.key = key
+	door.to_zone = zone_b_position
+	key += 1
 	add_child(door)
 	tilemap.update_bitmask_region(zone_a_position * zone_size, zone_a_position * zone_size + zone_size)
 	tilemap.update_bitmask_region(zone_b_position * zone_size, zone_b_position * zone_size + zone_size)
