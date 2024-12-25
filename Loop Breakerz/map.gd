@@ -43,7 +43,7 @@ func generate_room(zone_position: Vector2):
 	}
 
 func add_neighbors(zone_position: Vector2):
-	var offsets = [Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0), Vector2(0, -1)]
+	var offsets = [Vector2(-1, 0), Vector2(1, 0)] #, Vector2(-1, 0), Vector2(0, -1)]
 	var free_positions = []
 	for offset in offsets:
 		if not zones.has(zone_position + offset):
@@ -54,26 +54,48 @@ func add_neighbors(zone_position: Vector2):
 	for free_position in free_positions:
 		generate_room(free_position)
 		connect_rooms(zone_position, free_position)
-		if randi() % 2:
-			break
+#		if randi() % 2:
+#			break
 
 func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
+	var room_a_position = Vector2()
+	var room_a_size = Vector2()
+	var room_b_position = Vector2()
+	var room_b_size = Vector2()
 	if zone_a_position.x < zone_b_position.x:
-		var room_a_position = zones[zone_a_position].position
-		var room_a_size = zones[zone_a_position].size
-		var wall_a_position = room_a_position + Vector2(room_a_size.x, 0)
-		var door_a_position = wall_a_position + Vector2(0, randi() % int(room_a_size.y - 4) + 2)
-		var corridor_a_position = door_a_position + Vector2(0, -1)
-		var corridor_ab_position = zone_a_position * zone_size + Vector2(zone_size.x - 3, door_a_position.y)
-		for x in range(corridor_a_position.x, corridor_ab_position.x + 3):
-			for y in range(corridor_a_position.y, corridor_a_position.y + 3):
+		room_a_position = zones[zone_a_position].position
+		room_a_size = zones[zone_a_position].size
+		room_b_position = zones[zone_b_position].position
+		room_b_size = zones[zone_b_position].size
+	if zone_b_position.x < zone_a_position.x:
+		room_a_position = zones[zone_b_position].position
+		room_a_size = zones[zone_b_position].size
+		room_b_position = zones[zone_a_position].position
+		room_b_size = zones[zone_a_position].size
+	var wall_a_position = room_a_position + Vector2(room_a_size.x, 0)
+	var door_a_position = wall_a_position + Vector2(0, randi() % int(room_a_size.y - 4) + 2)
+	var corridor_a_position = door_a_position + Vector2(0, -1)
+	var corridor_ab_position = zone_a_position * zone_size + Vector2(zone_size.x - 3, door_a_position.y)
+	if zone_b_position.x < zone_a_position.x:
+		corridor_ab_position -= zone_size
+	var door_b_position = room_b_position + Vector2(0, randi() % int(room_b_size.y - 4) + 2)
+	var corridor_b_position = door_b_position + Vector2(0, -1)
+	for x in range(corridor_a_position.x, corridor_ab_position.x + 3):
+		for y in range(corridor_a_position.y, corridor_a_position.y + 3):
+			tilemap.set_cellv(Vector2(x, y), tile_id)
+	for x in range(corridor_ab_position.x, corridor_ab_position.x + 3):
+		if door_a_position.y < door_b_position.y:
+			for y in range(door_a_position.y, door_b_position.y):
 				tilemap.set_cellv(Vector2(x, y), tile_id)
-		for x in range(3):
-			for y in range(zone_size.y):
-				tilemap.set_cellv(corridor_ab_position + Vector2(x, y), tile_id)
-		tilemap.update_bitmask_region(zone_a_position * zone_size, zone_b_position * zone_size + zone_size)
-				
-			 
+		else:
+			for y in range(door_b_position.y, door_a_position.y):
+				tilemap.set_cellv(Vector2(x, y), tile_id)
+	for x in range(corridor_ab_position.x, corridor_b_position.x):
+		for y in range(corridor_b_position.y, corridor_b_position.y + 3):
+			tilemap.set_cellv(Vector2(x, y), tile_id)
+	tilemap.update_bitmask_region(zone_a_position * zone_size, zone_a_position * zone_size + zone_size)
+	tilemap.update_bitmask_region(zone_b_position * zone_size, zone_b_position * zone_size + zone_size)
+
 #	var doors = []
 #	# Top
 #	if randi() % 2 + 1:
