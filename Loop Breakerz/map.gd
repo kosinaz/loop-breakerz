@@ -1,12 +1,12 @@
 extends Node2D
 
 # Room and corridor parameters
-export (Vector2) var zone_size = Vector2(25, 25)
-export (int) var tile_id = 0  # ID for walkable tiles
-
-onready var tilemap = $TileMap
+var zone_size = Vector2(25, 25)
+var tile_id = 0  # ID for walkable tiles
+var door_scene = preload("res://door.tscn")
 var rng = RandomNumberGenerator.new()
 var zones = {}
+onready var tilemap = $TileMap
 
 func _ready():
 	# Seed the RNG
@@ -68,6 +68,8 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 	var door_b_position = Vector2()
 	var corridor_b_position = Vector2()
 	var corridor_ab_position = Vector2()
+	var switched = false
+	var rotated = false
 	if zone_a_position.y == zone_b_position.y:
 		if zone_a_position.x < zone_b_position.x:
 			room_a_position = zones[zone_a_position].position
@@ -79,8 +81,9 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 			room_a_size = zones[zone_b_position].size
 			room_b_position = zones[zone_a_position].position
 			room_b_size = zones[zone_a_position].size
+			switched = true
 		wall_a_position = room_a_position + Vector2(room_a_size.x, 0)
-		door_a_position = wall_a_position + Vector2(0, randi() % int(room_a_size.y - 4) + 2)
+		door_a_position = wall_a_position + Vector2(-1, randi() % int(room_a_size.y - 4) + 2)
 		corridor_a_position = door_a_position + Vector2(0, -1)
 		corridor_ab_position = zone_a_position * zone_size + Vector2(zone_size.x - 3, door_a_position.y)
 		if zone_b_position.x < zone_a_position.x:
@@ -101,6 +104,7 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 			for y in range(corridor_b_position.y, corridor_b_position.y + 3):
 				tilemap.set_cellv(Vector2(x, y), tile_id)
 	else:
+		rotated = true
 		if zone_a_position.y < zone_b_position.y:
 			room_a_position = zones[zone_a_position].position
 			room_a_size = zones[zone_a_position].size
@@ -111,8 +115,9 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 			room_a_size = zones[zone_b_position].size
 			room_b_position = zones[zone_a_position].position
 			room_b_size = zones[zone_a_position].size
+			switched = true
 		wall_a_position = room_a_position + Vector2(0, room_a_size.y)
-		door_a_position = wall_a_position + Vector2(randi() % int(room_a_size.x - 4) + 2, 0)
+		door_a_position = wall_a_position + Vector2(randi() % int(room_a_size.x - 4) + 2, -1)
 		corridor_a_position = door_a_position + Vector2(-1, 0)
 		corridor_ab_position = zone_a_position * zone_size + Vector2(door_a_position.x, zone_size.y - 3)
 		if zone_b_position.y < zone_a_position.y:
@@ -132,76 +137,9 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 		for x in range(corridor_b_position.x, corridor_b_position.x + 3):
 			for y in range(corridor_ab_position.y, corridor_b_position.y + 3):
 				tilemap.set_cellv(Vector2(x, y), tile_id)
-	
+	var door = door_scene.instance()
+	door.position = tilemap.map_to_world(door_b_position if switched else door_a_position)
+	door.get_node("Sprite").rotation_degrees = 0 if rotated else 90
+	add_child(door)
 	tilemap.update_bitmask_region(zone_a_position * zone_size, zone_a_position * zone_size + zone_size)
 	tilemap.update_bitmask_region(zone_b_position * zone_size, zone_b_position * zone_size + zone_size)
-
-#	var doors = []
-#	# Top
-#	if randi() % 2 + 1:
-#		var door_position = room_position + Vector2(randi() % (int(size.x) - 4) + 2, -1)
-#		for x in range(-1, 2):
-#			tilemap.set_cellv(door_position + Vector2(x, 0), tile_id)
-#		doors.append({
-#			"position": door_position,
-#			"direction": "up",
-#		})
-#
-#	# Bottom door
-#	if randi() % 2 + 1:
-#		var door_position = room_position + Vector2(randi() % (int(size.x) - 4) + 2, size.y)
-#		for x in range(-1, 2):
-#			tilemap.set_cellv(door_position + Vector2(x, 0), tile_id)
-#		doors.append({
-#			"position": door_position,
-#			"direction": "down",
-#		})
-#
-#	# Left door
-#	if randi() % 2 + 1:
-#		var door_position = room_position + Vector2(-1, randi() % (int(size.y) - 4) + 2)
-#		for y in range(-1, 2):
-#			tilemap.set_cellv(door_position + Vector2(0, y), tile_id)
-#		doors.append({
-#			"position": door_position,
-#			"direction": "left",
-#		})
-#
-#	# Right door
-#	if randi() % 2 + 1:
-#		var door_position = room_position + Vector2(size.x, randi() % (int(size.y) - 4) + 2)
-#		for y in range(-1, 2):
-#			tilemap.set_cellv(door_position + Vector2(0, y), tile_id)
-#		doors.append({
-#			"position": door_position,
-#			"direction": "right",
-#		})
-
-
-func get_valid_entrance(room: Rect2) -> Vector2:
-	# Get valid tiles for corridor entrances, excluding corners
-	var room_position = room.position
-	var width = room.size.x
-	var height = room.size.y
-
-	# Horizontal edges: Exclude the corners of the room
-	var top_edge = []
-	var bottom_edge = []
-
-	for x in range(1, width - 1):  # Exclude the corners by starting at 1 and ending before width - 1
-		top_edge.append(room_position + Vector2(x, 0))  # Add positions on the top edge
-		bottom_edge.append(room_position + Vector2(x, height - 1))  # Add positions on the bottom edge
-
-	# Vertical edges: Exclude the corners of the room
-	var left_edge = []
-	var right_edge = []
-
-	for y in range(1, height - 1):  # Exclude the corners by starting at 1 and ending before height - 1
-		left_edge.append(room_position + Vector2(0, y))  #  Add positions on the left edge
-		right_edge.append(room_position + Vector2(width - 1, y))  # Add positions on the right edge
-
-	# Combine all valid edges
-	var valid_positions = top_edge + bottom_edge + left_edge + right_edge
-
-	# Choose a random position from the valid tiles
-	return valid_positions[rng.randi_range(0, valid_positions.size() - 1)]
