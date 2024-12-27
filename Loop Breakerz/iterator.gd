@@ -1,9 +1,9 @@
 extends KinematicBody2D
 
 # Declare variables
-var speed = 50
+var speed = 20
 onready var target_player = $"../Looper"
-var health = 3
+export var health = 1
 var explosion_scene = preload("res://explosion_big.tscn")
 
 func _process(_delta):

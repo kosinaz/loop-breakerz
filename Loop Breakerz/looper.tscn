@@ -23,8 +23,8 @@ current = true
 shape = SubResource( 1 )
 
 [node name="CPUParticles2D" type="CPUParticles2D" parent="."]
-amount = 128
-lifetime = 2.0
+amount = 256
+lifetime = 4.0
 local_coords = false
 gravity = Vector2( 0, 0 )
 color = Color( 0.933333, 0.929412, 0.513726, 0.513726 )

@@ -8,21 +8,23 @@
 radius = 5.0
 
 [sub_resource type="Gradient" id=2]
-colors = PoolColorArray( 1, 0, 0, 1, 1, 1, 1, 0 )
+colors = PoolColorArray( 1, 0, 0, 0.533333, 1, 1, 1, 0 )
 
 [node name="Iterator" type="KinematicBody2D" groups=["enemies"]]
-collision_layer = 4
+collision_layer = 6
 collision_mask = 2
 script = ExtResource( 2 )
+health = 15
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
 
 [node name="CPUParticles2D" type="CPUParticles2D" parent="."]
 amount = 128
+lifetime = 4.0
 local_coords = false
 gravity = Vector2( 0, 0 )
-color = Color( 1, 0, 0, 1 )
+color = Color( 1, 0, 0, 0.478431 )
 color_ramp = SubResource( 2 )
 
 [node name="Sprite" type="Sprite" parent="."]

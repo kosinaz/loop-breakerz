@@ -3,6 +3,7 @@ extends KinematicBody2D
 # Speed of the projectile
 export var speed = 200
 var direction = Vector2()
+var floating_text_scene = preload("res://floating_text.tscn")
 
 # Explosion scene reference
 export (PackedScene) var explosion_scene
@@ -28,9 +29,15 @@ func handle_collision(collision):
 	# Set the explosion position to the projectile's current position
 	explosion.global_position = global_position
 	
+	var damage = 4 + randi() % 12
 	var collider = collision.collider
 	if collider.has_method("take_damage"):
-		collider.take_damage(1)
+		collider.take_damage(damage)
 	
 	# Add the explosion to the scene (assuming map node or parent is available)
 	get_parent().add_child(explosion)
+	
+	var floating_text = floating_text_scene.instance()
+	floating_text.position = position
+	floating_text.get_node("Label").text = str(damage)
+	get_parent().add_child(floating_text)

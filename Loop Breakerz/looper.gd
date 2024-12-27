@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
 # Player speed and velocity
-var speed = 100
+var speed = 40
 var velocity = Vector2()
 
 # Direction the player is moving in (store last pressed direction)
@@ -48,7 +48,7 @@ func shoot():
 	for enemy in enemies:
 		if position.distance_to(enemy.position) < position.distance_to(closest.position):
 			closest = enemy
-	if position.distance_to(closest.position) > 200:
+	if position.distance_to(closest.position) > 100:
 		return
 	projectile.set_direction(position.direction_to(closest.position))
 	get_parent().add_child(projectile)

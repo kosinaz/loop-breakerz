@@ -4,9 +4,11 @@ extends Node2D
 var zone_size = Vector2(25, 25)
 var tile_id = 0  # ID for walkable tiles
 var door_scene = preload("res://door.tscn")
+var incrementer_scene = preload("res://incrementer.tscn")
 var iterator_scene = preload("res://iterator.tscn")
 var rng = RandomNumberGenerator.new()
 var zones = {}
+var enemy_limit = 15
 var key = KEY_0
 onready var tilemap = $TileMap
 onready var player = $Looper
@@ -17,6 +19,9 @@ func _ready():
 
 	generate_room(Vector2(0, 0))
 	add_neighbors(Vector2(0, 0))
+	
+	for _i in range(3):
+		add_enemy(incrementer_scene)
 	
 func _process(_delta):
 	if Input.is_action_just_released("ui_accept"):
@@ -43,6 +48,7 @@ func generate_room(zone_position: Vector2):
 	zones[zone_position] = {
 		"position": room_position, 
 		"size": size,
+		"enemies": 0,
 	}
 
 func add_neighbors(zone_position: Vector2):
@@ -151,15 +157,31 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 	tilemap.update_bitmask_region(zone_b_position * zone_size, zone_b_position * zone_size + zone_size)
 
 func _on_timer_timeout():
-	for _i in range(3):
-		var map_position = tilemap.world_to_map(player.position) / zone_size
-		var zone_position = Vector2(floor(map_position.x), floor(map_position.y))
-		if not zones.has(zone_position):
-			return
-		var room_position = zones[zone_position].position
-		var room_size = zones[zone_position].size
-		var x = room_position.x + 3 + randi() % int(room_size.x - 6)
-		var y = room_position.y + 3 + randi() % int(room_size.y - 6)
-		var iterator = iterator_scene.instance()
-		iterator.position = tilemap.map_to_world(Vector2(x, y))
-		add_child(iterator)
+	if randi() % 6:
+		add_enemy(incrementer_scene)
+	else:
+		add_enemy(iterator_scene)
+		
+func add_enemy(scene):
+	var map_position = tilemap.world_to_map(player.position) / zone_size
+	var zone_position = Vector2(floor(map_position.x), floor(map_position.y))
+	if not zones.has(zone_position):
+		return
+	if get_enemies_in_room(zones[zone_position]).size() > 15:
+		return
+	zones[zone_position].enemies += 1
+	var room_position = zones[zone_position].position
+	var room_size = zones[zone_position].size
+	var x = room_position.x + 3 + randi() % int(room_size.x - 6)
+	var y = room_position.y + 3 + randi() % int(room_size.y - 6)
+	var enemy = scene.instance()
+	enemy.position = tilemap.map_to_world(Vector2(x, y))
+	add_child(enemy)
+
+func get_enemies_in_room(room):
+	var rect = Rect2(room.position, room.size)
+	var enemies = []
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if rect.has_point(enemy.position):
+			enemies.append(enemy)
+	return enemies
