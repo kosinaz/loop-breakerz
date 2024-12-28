@@ -5,6 +5,7 @@ var speed = 30
 onready var target_player = $"../Looper"
 export var health = 1
 var explosion_scene = preload("res://explosion_big.tscn")
+var token_scene = preload("res://token.tscn")
 
 func _process(_delta):
 	$Sprite2.rotation_degrees += 7
@@ -20,10 +21,10 @@ func take_damage(amount):
 		die()
 
 func die():
-	# Instance the explosion scene
 	var explosion = explosion_scene.instance()
-
-	# Set the explosion position to the projectile's current position
 	explosion.global_position = global_position
 	get_parent().add_child(explosion)
+	var token = token_scene.instance()
+	token.global_position = global_position
+	get_parent().add_child(token)
 	queue_free()

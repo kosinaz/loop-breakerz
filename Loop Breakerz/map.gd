@@ -47,7 +47,7 @@ func generate_room(zone_position: Vector2):
 	tilemap.update_bitmask_region(room_position, room_position + size)
 	
 	spawners.shuffle()
-	spawners.resize(10)
+	spawners.resize(6)
 	for spawner in spawners:
 		tilemap2.set_cellv(room_position + spawner, 1)
 	
@@ -175,17 +175,18 @@ func add_enemy(scene):
 	var zone_position = Vector2(floor(map_position.x), floor(map_position.y))
 	if not zones.has(zone_position):
 		return
-	if get_enemies_in_room(zones[zone_position]).size() > 15:
+	if get_enemies_in_room(zones[zone_position]).size() > 25:
 		return
 	zones[zone_position].enemies += 1
 	var room_position = zones[zone_position].position
-	var spawner = zones[zone_position].spawners[randi() % zones[zone_position].spawners.size()]
+	var spawner = zones[zone_position].spawners.pop_front()
+	zones[zone_position].spawners.push_back(spawner)
 	var enemy = scene.instance()
 	enemy.position = tilemap.map_to_world(room_position + spawner) + Vector2(16, 16)
 	add_child(enemy)
 
 func get_enemies_in_room(room):
-	var rect = Rect2(room.position, room.size)
+	var rect = Rect2(tilemap.map_to_world(room.position), tilemap.map_to_world(room.size))
 	var enemies = []
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if rect.has_point(enemy.position):
