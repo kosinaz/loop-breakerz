@@ -103,19 +103,25 @@ func reveal():
 			line.clear()
 			line.append_bbcode("[color=yellow]" + text.substr(0, command.text.length()) + "[/color]")
 			for i in range(command.text.length(), text.length()):
-				if revealed.has(text[i]):
+				if i != (text.length() - 1) and revealed.has(text[i] + text[i + 1]):
+					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+				elif revealed.has(text[i - 1] + text[i]):
 					line.append_bbcode("[color=green]" + text[i] + "[/color]")
 				else:
 					line.append_bbcode(text[i])
+			
 		else:
 			var text = line.text
 			line.clear()
 			for i in range(text.length()):
-				if revealed.has(text[i]):
+				if i != (text.length() - 1) and revealed.has(text[i] + text[i + 1]):
+					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+				elif revealed.has(text[i - 1] + text[i]):
 					line.append_bbcode("[color=green]" + text[i] + "[/color]")
 				else:
 					line.append_bbcode(text[i])
 
 func _on_Timer_timeout():
-	revealed.append(expected_command[randi() % expected_command.length()])
+	var r = randi() % (expected_command.length() - 1)
+	revealed.append(expected_command[r] + expected_command[r + 1])
 	reveal()
