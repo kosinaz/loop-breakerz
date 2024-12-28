@@ -12,7 +12,9 @@ const MAX_ANGLE_DELTA = PI / 8
 
 # Shooting control
 var can_shoot = true
-export(PackedScene) var projectile_scene
+var projectile_scene = preload("res://projectile_looper.tscn")
+
+onready var health_bar = $"%HealthBar"
 
 func _process(_delta):
 	# Get the mouse position
