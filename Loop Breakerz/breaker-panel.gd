@@ -58,7 +58,6 @@ func generate():
 		lines.get_child(i).text = line
 		lines.get_child(i).modulate = Color(1, 1, 1, 1)
 	expected_command = lines.get_child(randi() % lines.get_child_count()).text
-	print(expected_command)
 
 func _input(event):
 	if event is InputEventKey and event.pressed:
@@ -68,16 +67,10 @@ func _input(event):
 				if stage < 3:
 					stage += 1
 				generate()
-			else:
+			elif command.text.length() == entered_line.text.length():
 				entered_line.modulate = Color(1, 0, 0, 1)
 			command.text = ""
 			return
-		if c == "space":
-			c = " "
-		if c == "minus":
-			c = "-"
-		if c == "shift+7":
-			c = "="
 		if c.length() == 1:
 			handle_input(c)
 
@@ -85,6 +78,12 @@ func handle_input(c):
 	for line in lines.get_children():
 		if line.text.begins_with(command.text + c):
 			command.text += c
+			if line.text.begins_with(command.text + " "):
+				command.text += " " 
+			if line.text.begins_with(command.text + "-"):
+				command.text += "-" 
+			if line.text.begins_with(command.text + "="):
+				command.text += "=" 
 			break
 	for line in lines.get_children():
 		if line.text.begins_with(command.text):
@@ -104,9 +103,9 @@ func reveal():
 			line.append_bbcode("[color=yellow]" + text.substr(0, command.text.length()) + "[/color]")
 			for i in range(command.text.length(), text.length()):
 				if i != (text.length() - 1) and revealed.has(text[i] + text[i + 1]):
-					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+					line.append_bbcode("[color=white]" + text[i] + "[/color]")
 				elif revealed.has(text[i - 1] + text[i]):
-					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+					line.append_bbcode("[color=white]" + text[i] + "[/color]")
 				else:
 					line.append_bbcode(text[i])
 			
@@ -115,9 +114,9 @@ func reveal():
 			line.clear()
 			for i in range(text.length()):
 				if i != (text.length() - 1) and revealed.has(text[i] + text[i + 1]):
-					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+					line.append_bbcode("[color=white]" + text[i] + "[/color]")
 				elif revealed.has(text[i - 1] + text[i]):
-					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+					line.append_bbcode("[color=white]" + text[i] + "[/color]")
 				else:
 					line.append_bbcode(text[i])
 
