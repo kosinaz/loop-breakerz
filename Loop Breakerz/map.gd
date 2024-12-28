@@ -11,6 +11,7 @@ var zones = {}
 var enemy_limit = 15
 var key = KEY_0
 onready var tilemap = $TileMap
+onready var tilemap2 = $TileMap2
 onready var player = $Looper
 
 func _ready():
@@ -24,7 +25,7 @@ func _ready():
 		add_enemy(incrementer_scene)
 	
 func _process(_delta):
-	$Camera2D.position = player.position + Vector2(-106, 0)
+	$Camera2D.position = player.position + Vector2(-53, 0)
 
 func generate_room(zone_position: Vector2):
 	# Randomly offset the room_position
@@ -34,19 +35,28 @@ func generate_room(zone_position: Vector2):
 	# Randomly determine room size
 	var size = Vector2(rng.randi_range(11, 15), rng.randi_range(11, 15))
 
+	var spawners = []
 	# Place floor tiles for the room
 	for x in range(size.x):
 		for y in range(size.y):
+			if x % 2 and y % 2 and x > 2 and x < size.x - 2 and y > 2 and y < size.y - 2:
+				spawners.append(Vector2(x, y))
 			tilemap.set_cellv(room_position + Vector2(x, y), tile_id)
 	
 	# Update the autotile bitmask for the entire room region
 	tilemap.update_bitmask_region(room_position, room_position + size)
-
+	
+	spawners.shuffle()
+	spawners.resize(10)
+	for spawner in spawners:
+		tilemap2.set_cellv(room_position + spawner, 1)
+	
 	# Return the room's bounds for corridor placement
 	zones[zone_position] = {
 		"position": room_position, 
 		"size": size,
 		"enemies": 0,
+		"spawners": spawners,
 	}
 
 func add_neighbors(zone_position: Vector2):
@@ -169,11 +179,9 @@ func add_enemy(scene):
 		return
 	zones[zone_position].enemies += 1
 	var room_position = zones[zone_position].position
-	var room_size = zones[zone_position].size
-	var x = room_position.x + 3 + randi() % int(room_size.x - 6)
-	var y = room_position.y + 3 + randi() % int(room_size.y - 6)
+	var spawner = zones[zone_position].spawners[randi() % zones[zone_position].spawners.size()]
 	var enemy = scene.instance()
-	enemy.position = tilemap.map_to_world(Vector2(x, y))
+	enemy.position = tilemap.map_to_world(room_position + spawner) + Vector2(16, 16)
 	add_child(enemy)
 
 func get_enemies_in_room(room):

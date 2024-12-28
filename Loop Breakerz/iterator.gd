@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
 # Declare variables
-var speed = 20
+var speed = 30
 onready var target_player = $"../Looper"
 export var health = 1
 var explosion_scene = preload("res://explosion_big.tscn")
