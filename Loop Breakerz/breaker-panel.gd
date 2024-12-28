@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 
 var commands = [
 	["deploy", "amplify", "calibrate", "realign", "transfer", "activate", "trigger", "initiate", "unseal", "locate", "engage", "elevate", "decrypt", "access", "disrupt", "crack", "unlock", "trigger"],

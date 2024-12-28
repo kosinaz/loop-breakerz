@@ -24,9 +24,7 @@ func _ready():
 		add_enemy(incrementer_scene)
 	
 func _process(_delta):
-	if Input.is_action_just_released("ui_accept"):
-		# warning-ignore:return_value_discarded
-		get_tree().reload_current_scene()
+	$Camera2D.position = player.position + Vector2(-106, 0)
 
 func generate_room(zone_position: Vector2):
 	# Randomly offset the room_position
