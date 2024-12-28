@@ -1,19 +1,5 @@
 extends Control
 
-# Placeholder for command suggestions
-var command_suggestions = [
-	"RUN diagnostics Alpha-3 -analyze-account=true",
-	"INITIATE protocol Bravo-7 -subroutine-priority=high",
-	"EXECUTE script Charlie-5 -hash-speed=78",
-	"ACCESS uplink Delta-9 -decrypt-code=34",
-	"UPLOAD data Echo-2 -boost-level=99",
-	"DOWNLOAD module Foxtrot-8 -analyze-account=false",
-	"ACTIVATE sequence Golf-4 -hash-speed=474",
-	"TERMINATE process Hotel-6 -subroutine-priority=medium",
-	"LAUNCH operation India-1 -decrypt-code=56",
-	"CONNECT network Juliet-3 -uplink-protocol-layer=50"
-]
-
 var commands = [
 	["deploy", "amplify", "calibrate", "realign", "transfer", "activate", "trigger", "initiate", "unseal", "locate", "engage", "elevate", "decrypt", "access", "disrupt", "crack", "unlock", "trigger"],
 	["hyper", "chrono", "sigma", "grid", "neon", "loopbound", "synthetic", "hyperion", "echo", "viral", "cascade", "parallel", "gridlock", "vortex", "quantum", "axis", "synaptic", "chrono"],
@@ -29,28 +15,40 @@ var params = [
 	["-analyze-account", "-auto-reroute", "-system-backup", "-override-gate", "-close-loop", "-cache-lock", "-fail-safe", "-integrity-check", "-initialize-key", "-protocol-delay", "-optimize-thread", "-network-scan", "-runtime-lock"],
 	["-hash-speed", "-subroutine-priority", "-boost-level", "-uplink-protocol-layer", "-vector-sync", "-lock-security", "-flux-capacity", "-trace-pathway", "-core-hash", "-link-strength", "-redirect-flow", "-amplify-rate", "-scan-frequency", "-bypass-rate", "-process-stack"],
 ]
-
-
-# Called when the user presses Enter in the input field
-func _on_input_field_text_entered(new_text):
-	if new_text in command_suggestions:
-		print("Command executed:", new_text)
-	else:
-		print("Invalid command:", new_text)
+var responses = [
+	"Stage 1 access denied!\nEnter a valid command to continue!",
+	"Stage 1 access granted!\nStage 2 access denied!\nEnter a valid command to continue!",
+	"Stage 1 access granted!\nStage 2 access granted!\nStage 3 access denied!\nEnter a valid command to continue!",
+	"All access granted!\nEnter a valid zone maintenance command!",
+]
+var stage = 0
+var expected_command = ""
+var entered_line = null
+var revealed = []
+onready var lines = $"%Lines"
+onready var command = $"%Command"
+onready var response = $"%Response"
 
 func _ready():
 	randomize()
-	$"%LineEdit".grab_focus()
-	# Populate the list of commands
-	var lines = $"%Lines"
+	generate()
+	
+func generate():
+	revealed = []
+	response.text = responses[stage]
 	var coords_id = randi() % coords.size()
 	for i in range(lines.get_child_count()):
 		var line = commands[0][randi() % commands[0].size()] + " "
 		line += commands[1][randi() % commands[1].size()] + " "
 		line += commands[2][randi() % commands[2].size()] + " "
-#		line += commands[3][randi() % commands[3].size()] + " "
-		line += coords[coords_id][randi() % coords[coords_id].size()] + "-"
-		line += str(randi() % 13 + 1) + " "
+		if stage < 3:
+			line += commands[3][randi() % commands[3].size()] + " "
+		elif stage == 3:
+			line += coords[coords_id][randi() % coords[coords_id].size()] + "-"
+			line += str(randi() % 13 + 1) + " "
+		elif stage == 4:
+			line += coords[coords_id][randi() % coords[coords_id].size()] + "-"
+			line += str(randi() % 13 + 1) + " "
 		var params_id = randi() % params.size()
 		line += params[params_id][randi() % params[params_id].size()] + "="
 		if params_id:
@@ -58,3 +56,66 @@ func _ready():
 		else:
 			line += "true" if randi() % 2 else "false"
 		lines.get_child(i).text = line
+		lines.get_child(i).modulate = Color(1, 1, 1, 1)
+	expected_command = lines.get_child(randi() % lines.get_child_count()).text
+	print(expected_command)
+
+func _input(event):
+	if event is InputEventKey and event.pressed:
+		var c = event.as_text().to_lower()
+		if c == "enter":
+			if command.text == expected_command:
+				if stage < 3:
+					stage += 1
+				generate()
+			else:
+				entered_line.modulate = Color(1, 0, 0, 1)
+			command.text = ""
+			return
+		if c == "space":
+			c = " "
+		if c == "minus":
+			c = "-"
+		if c == "shift+7":
+			c = "="
+		if c.length() == 1:
+			handle_input(c)
+
+func handle_input(c):
+	for line in lines.get_children():
+		if line.text.begins_with(command.text + c):
+			command.text += c
+			break
+	for line in lines.get_children():
+		if line.text.begins_with(command.text):
+			var text = line.text
+			line.clear()
+			line.append_bbcode("[color=yellow]" + text.substr(0, command.text.length()) + "[/color]" + text.substr(command.text.length()))
+			entered_line = line
+		else:
+			line.text = line.text
+	reveal()
+
+func reveal():
+	for line in lines.get_children():
+		if line.text.begins_with(command.text):
+			var text = line.text
+			line.clear()
+			line.append_bbcode("[color=yellow]" + text.substr(0, command.text.length()) + "[/color]")
+			for i in range(command.text.length(), text.length()):
+				if revealed.has(text[i]):
+					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+				else:
+					line.append_bbcode(text[i])
+		else:
+			var text = line.text
+			line.clear()
+			for i in range(text.length()):
+				if revealed.has(text[i]):
+					line.append_bbcode("[color=green]" + text[i] + "[/color]")
+				else:
+					line.append_bbcode(text[i])
+
+func _on_Timer_timeout():
+	revealed.append(expected_command[randi() % expected_command.length()])
+	reveal()
