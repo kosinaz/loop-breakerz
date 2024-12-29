@@ -195,3 +195,8 @@ custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
 custom_fonts/normal_font = SubResource( 1 )
 bbcode_enabled = true
 fit_content_height = true
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 1, 1, 1, 0 )

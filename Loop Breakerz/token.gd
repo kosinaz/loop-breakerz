@@ -14,4 +14,5 @@ func _on_token_body_entered(body):
 	powerup.global_position = global_position
 	get_parent().add_child(powerup)
 	get_parent().get_node("BreakerPanel").reveal_next()
+	get_parent().get_node("Camera2D").start_shake_and_modulate(0.5, 0.4, "green")
 	queue_free()

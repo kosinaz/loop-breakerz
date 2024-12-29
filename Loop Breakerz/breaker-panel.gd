@@ -28,6 +28,7 @@ var revealed = []
 onready var lines = $"%Lines"
 onready var command = $"%Command"
 onready var response = $"%Response"
+onready var overlay = $Overlay
 
 func _ready():
 	randomize()

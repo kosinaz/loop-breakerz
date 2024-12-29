@@ -72,6 +72,7 @@ func take_damage(amount):
 	health -= amount
 	health_bar.value = health
 	animation_player.play("hit")
+	get_parent().get_node("Camera2D").start_shake_and_modulate(2.0, 0.4, "red")
 
 func _on_damage_timer_timeout():
 	damaged = false
