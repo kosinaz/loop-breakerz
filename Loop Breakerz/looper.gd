@@ -2,7 +2,9 @@ extends KinematicBody2D
 
 # Player speed and velocity
 var speed = 40
+var health = 10
 var velocity = Vector2()
+var damaged = false
 
 # Direction the player is moving in (store last pressed direction)
 var move_direction = Vector2()
@@ -15,6 +17,8 @@ var can_shoot = true
 var projectile_scene = preload("res://projectile_looper.tscn")
 
 onready var health_bar = $"%HealthBar"
+onready var damage_timer = $DamageTimer
+onready var animation_player = $AnimationPlayer
 
 func _process(_delta):
 	# Get the mouse position
@@ -39,6 +43,7 @@ func _process(_delta):
 	# warning-ignore:return_value_discarded
 	move_and_slide(velocity)
 
+
 func shoot():
 	var projectile = projectile_scene.instance()
 	projectile.global_position = global_position
@@ -56,5 +61,17 @@ func shoot():
 	get_parent().add_child(projectile)
 
 # Callback when the Timer times out
-func _on_timer_timeout():
+func _on_attack_timer_timeout():
 	shoot()
+
+func take_damage(amount):
+	if damaged:
+		return
+	damaged = true
+	damage_timer.start()
+	health -= amount
+	health_bar.value = health
+	animation_player.play("hit")
+
+func _on_damage_timer_timeout():
+	damaged = false

@@ -4,16 +4,25 @@ extends KinematicBody2D
 var speed = 30
 onready var target_player = $"../Looper"
 export var health = 1
+export var damage = 1  # Amount of damage dealt to the player
 var explosion_scene = preload("res://explosion_big.tscn")
 var token_scene = preload("res://token.tscn")
 
-func _process(_delta):
+func _process(delta):
 	$Sprite2.rotation_degrees += 7
 	
 	# Make the enemy chase the player
-	if target_player:
-		# warning-ignore:return_value_discarded
-		move_and_slide(position.direction_to(target_player.position) * speed)
+	if not target_player:
+		return
+
+	var collision = move_and_collide(position.direction_to(target_player.position) * speed * delta)
+	
+	# Check for collision
+	if not collision:
+		return
+	if collision.collider != target_player:
+		return
+	target_player.take_damage(damage)
 		
 func take_damage(amount):
 	health -= amount
