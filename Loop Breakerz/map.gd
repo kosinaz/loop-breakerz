@@ -165,6 +165,8 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 	tilemap.update_bitmask_region(zone_b_position * zone_size, zone_b_position * zone_size + zone_size)
 
 func _on_timer_timeout():
+	if player.died:
+		return
 	if randi() % 6:
 		add_enemy(incrementer_scene)
 	else:

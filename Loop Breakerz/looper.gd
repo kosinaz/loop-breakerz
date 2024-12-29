@@ -5,6 +5,7 @@ var speed = 40
 var health = 10
 var velocity = Vector2()
 var damaged = false
+var died = false
 
 # Direction the player is moving in (store last pressed direction)
 var move_direction = Vector2()
@@ -15,12 +16,18 @@ const MAX_ANGLE_DELTA = PI / 8
 # Shooting control
 var can_shoot = true
 var projectile_scene = preload("res://projectile_looper.tscn")
+var ring_scene = preload("res://ring.tscn")
+
+var expansion_speed = 0.5  # Speed of ring expansion
+var max_radius = 1.0  # Maximum radius
 
 onready var health_bar = $"%HealthBar"
 onready var damage_timer = $DamageTimer
 onready var animation_player = $AnimationPlayer
 
 func _process(_delta):
+	if died:
+		return
 	# Get the mouse position
 	var mouse_position = get_global_mouse_position()
 	
@@ -62,9 +69,13 @@ func shoot():
 
 # Callback when the Timer times out
 func _on_attack_timer_timeout():
+	if died:
+		return
 	shoot()
 
 func take_damage(amount):
+	if died:
+		return
 	if damaged:
 		return
 	damaged = true
@@ -73,6 +84,14 @@ func take_damage(amount):
 	health_bar.value = health
 	animation_player.play("hit")
 	get_parent().get_node("Camera2D").start_shake_and_modulate(2.0, 0.4, "red")
+	if health <= 0:
+		die()
+
+func die():
+	died = true
+	var ring = ring_scene.instance()
+	ring.global_position = global_position
+	get_parent().add_child(ring)
 
 func _on_damage_timer_timeout():
 	damaged = false

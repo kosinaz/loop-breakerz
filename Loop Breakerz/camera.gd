@@ -13,7 +13,6 @@ func start_shake_and_modulate(intensity: float, duration: float, color: String):
 	shake_duration = duration
 	modulate_color = color
 	original_offset = offset  # Store the original offset
-	print(panel.overlay)
 	panel.overlay.visible = true
 	is_modulating = true
 	set_process(true)

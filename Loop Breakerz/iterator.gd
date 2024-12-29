@@ -14,6 +14,9 @@ func _process(delta):
 	# Make the enemy chase the player
 	if not target_player:
 		return
+		
+	if target_player.died:
+		return
 
 	var collision = move_and_collide(position.direction_to(target_player.position) * speed * delta)
 	
