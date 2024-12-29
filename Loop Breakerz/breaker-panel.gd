@@ -1,10 +1,10 @@
 extends CanvasLayer
 
 var commands = [
-	["deploy", "amplify", "calibrate", "realign", "transfer", "activate", "trigger", "initiate", "unseal", "locate", "engage", "elevate", "decrypt", "access", "disrupt", "crack", "unlock", "trigger"],
-	["hyper", "chrono", "sigma", "grid", "neon", "loopbound", "synthetic", "hyperion", "echo", "viral", "cascade", "parallel", "gridlock", "vortex", "quantum", "axis", "synaptic", "chrono"],
-	["neon", "drive", "quantum", "flux", "vortex", "paradox", "circuit", "matrix", "frame", "axon", "subroutine", "node", "spectral", "synch", "fusion", "core", "feedback", "shard"],
-	["core", "essence", "synth", "pulse", "shard", "cycle", "bind", "grid", "spectrum", "pathway", "axis", "stream", "cycle", "loop", "drive", "field", "shield", "link"]
+	["deploy", "amplify", "calibrate", "realign", "transfer", "activate", "trigger", "initiate", "unseal", "locate", "engage", "elevate", "decrypt", "access", "disrupt", "crack", "unlock"],
+	["sigma", "synthetic", "hyperion", "echo", "viral", "cascade", "parallel", "grid", "vortex", "quantum", "axis", "synaptic"],
+	["drive", "flux", "paradox", "circuit", "matrix", "frame", "axon", "subroutine", "node", "spectral", "synch", "fusion", "feedback"],
+	["essence", "synth", "pulse", "bind", "spectrum", "pathway", "stream", "loop", "field", "shield", "link"]
 ]
 var coords = [
 	["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliet", "kilo", "lima", "mike", "november", "oscar", "papa", "quebec", "romeo", "sierra", "tango", "uniform", "victor", "whiskey", "x-ray", "yankee", "zulu"],
@@ -24,10 +24,13 @@ var responses = [
 var stage = 0
 var expected_command = ""
 var entered_line = null
-var revealed = []
-onready var lines = $"%Lines"
-onready var command = $"%Command"
-onready var response = $"%Response"
+var keywords = []
+var revealed = -1
+var guesses = []
+onready var response_label = $"%Response"
+onready var keywords_label = $"%Keywords"
+onready var guesses_container = $"%Guesses"
+onready var command_label = $"%Command"
 onready var overlay = $Overlay
 
 func _ready():
@@ -35,109 +38,78 @@ func _ready():
 	generate()
 	
 func generate():
-	revealed = []
-	response.text = responses[stage]
-	var coords_id = randi() % coords.size()
-	for i in range(lines.get_child_count()):
-		var line = commands[0][randi() % commands[0].size()] + " "
-		line += commands[1][randi() % commands[1].size()] + " "
-		line += commands[2][randi() % commands[2].size()] + " "
-		if stage < 3:
-			line += commands[3][randi() % commands[3].size()] + " "
-		elif stage == 3:
-			line += coords[coords_id][randi() % coords[coords_id].size()] + "-"
-			line += str(randi() % 13 + 1) + " "
-		elif stage == 4:
-			line += coords[coords_id][randi() % coords[coords_id].size()] + "-"
-			line += str(randi() % 13 + 1) + " "
-		var params_id = randi() % params.size()
-		line += params[params_id][randi() % params[params_id].size()] + "="
-		if params_id:
-			line += str(randi() % 99)
-		else:
-			line += "true" if randi() % 2 else "false"
-		lines.get_child(i).text = line
-		lines.get_child(i).modulate = Color(1, 1, 1, 1)
-	expected_command = lines.get_child(randi() % lines.get_child_count()).text
+	keywords = []
+	revealed = -1
+	expected_command = ""
+	for guess in guesses_container.get_children():
+		guess.queue_free()
+	response_label.text = responses[stage]
+	for i in commands.size():
+		commands[i].shuffle()
+		keywords += commands[i].slice(0, 5)
+		expected_command += commands[i][0] + " "
+	expected_command = expected_command.rstrip(" ")
+	print(expected_command)
+	keywords.shuffle()
+	keywords_label.text = "Traced keywords:\n"
+	for keyword in keywords:
+		keywords_label.text += keyword + " "
 
 func _input(event):
-	if event is InputEventKey and event.pressed:
-		var c = event.as_text().to_lower()
-		if c == "enter":
-			if command.text == expected_command:
-				if stage < 3:
-					stage += 1
-				generate()
-			elif command.text.length() == entered_line.text.length():
-				entered_line.modulate = Color(1, 0, 0, 1)
-			command.text = ""
-			return
-		if c.length() == 1:
-			handle_input(c)
+	if not (event is InputEventKey and event.pressed):
+		return
+	var c = event.as_text().to_lower()
+	if c == "enter":
+		print(command_label.text.split(" "))
+		if command_label.text.rstrip(" ") == expected_command:
+			if stage < 3:
+				stage += 1
+			generate()
+		elif command_label.text.rstrip(" ").split(" ").size() == 4:
+			guesses.append(command_label.text)
+			var guess = command_label.duplicate()
+			guess.text = guess.text
+			guesses_container.add_child(guess)
+		command_label.text = ""
+		return
+	if c.length() == 1:
+		handle_input(c)
 
 func handle_input(c):
-	for line in lines.get_children():
-		if line.text.begins_with(command.text + c):
-			command.text += c
-			if line.text.begins_with(command.text + " "):
-				command.text += " " 
-			if line.text.begins_with(command.text + "-"):
-				command.text += "-" 
-			if line.text.begins_with(command.text + "="):
-				command.text += "=" 
+	var current_word = Array(command_label.text.split(" ")).back()
+	for keyword in keywords:
+		if keyword.begins_with(current_word + c):
+			command_label.text += c
+			if keyword == current_word + c:
+				command_label.text += " " 
 			break
-	for line in lines.get_children():
-		if line.text.begins_with(command.text):
-			var text = line.text
-			line.clear()
-			line.append_bbcode("[color=yellow]" + text.substr(0, command.text.length()) + "[/color]" + text.substr(command.text.length()))
-			entered_line = line
-		else:
-			line.text = line.text
-	reveal()
 
-func reveal():
-	# Cache the command text and its length
-	var cmd_text = command.text
-	var cmd_len = cmd_text.length()
-	
-	for line in lines.get_children():
-		# Cache the line text and prepare a new BBCode string
-		var text = line.text
-		var bbcode_result = ""
-		
-		if text.begins_with(cmd_text):
-			# Highlight matching prefix
-			bbcode_result += "[color=yellow]" + text.substr(0, cmd_len) + "[/color]"
-			
-			# Process the remaining text
-			for i in range(cmd_len, text.length()):
-				var current_char = text[i]
-				var next_char = text[i + 1] if i < text.length() - 1 else ""
-				var prev_char = text[i - 1] if i > 0 else ""
-				
-				if revealed.has(current_char + next_char) or revealed.has(prev_char + current_char):
-					bbcode_result += "[color=white]" + current_char + "[/color]"
-				else:
-					bbcode_result += current_char
-		else:
-			# Process the entire line if it doesn't match the command
-			for i in range(text.length()):
-				var current_char = text[i]
-				var next_char = text[i + 1] if i < text.length() - 1 else ""
-				var prev_char = text[i - 1] if i > 0 else ""
-				
-				if revealed.has(current_char + next_char) or revealed.has(prev_char + current_char):
-					bbcode_result += "[color=white]" + current_char + "[/color]"
-				else:
-					bbcode_result += current_char
-		
-		# Apply the constructed BBCode to the line
-		line.clear()
-		line.append_bbcode(bbcode_result)
 
-	
 func reveal_next():
-	var r = randi() % (expected_command.length() - 1)
-	revealed.append(expected_command[r] + expected_command[r + 1])
-	reveal()
+	print(revealed)
+	if guesses_container.get_child_count() <= revealed + 1:
+		return
+	revealed += 1
+	var guess = guesses_container.get_child(revealed).text
+	print(guess)
+	var words = guess.split(" ")
+#	var correct_words = expected_command.split(" ")
+#	var feedback = []
+#
+#	# Compare each word in the guess with the expected command
+#	for i in range(guess_words.size()):
+#		if guess_words[i] == correct_words[i]:
+#			feedback.append("correct")  # Correct word in correct place
+#		elif correct_words.has(guess_words[i]):
+#			feedback.append("wrong_place")  # Correct word in wrong place
+#		else:
+#			feedback.append("wrong")  # Wrong word
+#
+#	# Now reveal the correct words and their locations using feedback
+#	for i in range(feedback.size()):
+#		if feedback[i] == "correct":
+#			revealed.append(guess_words[i] + "_correct")
+#		elif feedback[i] == "wrong_place":
+#			revealed.append(guess_words[i] + "_wrong_place")
+#
+#	reveal()  # Update the lines with the feedback

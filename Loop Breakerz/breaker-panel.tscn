@@ -38,162 +38,28 @@ text = "Stage 1 access denied!
 Enter a valid command to continue!"
 fit_content_height = true
 
-[node name="Command" type="RichTextLabel" parent="Panel/VBoxContainer"]
+[node name="Keywords" type="RichTextLabel" parent="Panel/VBoxContainer"]
 unique_name_in_owner = true
 margin_top = 46.0
 margin_right = 408.0
 margin_bottom = 67.0
-size_flags_stretch_ratio = 0.25
-custom_colors/default_color = Color( 0.968627, 1, 0, 1 )
-custom_fonts/normal_font = SubResource( 2 )
+custom_fonts/normal_font = SubResource( 1 )
+text = "Traced keywords: "
 fit_content_height = true
 
-[node name="Help" type="RichTextLabel" parent="Panel/VBoxContainer"]
+[node name="Guesses" type="VBoxContainer" parent="Panel/VBoxContainer"]
+unique_name_in_owner = true
 margin_top = 71.0
 margin_right = 408.0
-margin_bottom = 92.0
-custom_fonts/normal_font = SubResource( 1 )
-text = "Available commands:"
-fit_content_height = true
-
-[node name="Lines" type="VBoxContainer" parent="Panel/VBoxContainer"]
-unique_name_in_owner = true
-margin_top = 96.0
-margin_right = 408.0
-margin_bottom = 467.0
-
-[node name="Line1" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_right = 408.0
-margin_bottom = 21.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line2" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 25.0
-margin_right = 408.0
-margin_bottom = 46.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line3" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 50.0
-margin_right = 408.0
 margin_bottom = 71.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
 
-[node name="Line4" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
+[node name="Command" type="RichTextLabel" parent="Panel/VBoxContainer"]
+unique_name_in_owner = true
 margin_top = 75.0
 margin_right = 408.0
 margin_bottom = 96.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line5" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 100.0
-margin_right = 408.0
-margin_bottom = 121.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line6" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 125.0
-margin_right = 408.0
-margin_bottom = 146.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line7" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 150.0
-margin_right = 408.0
-margin_bottom = 171.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line8" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 175.0
-margin_right = 408.0
-margin_bottom = 196.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line9" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 200.0
-margin_right = 408.0
-margin_bottom = 221.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line10" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 225.0
-margin_right = 408.0
-margin_bottom = 246.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line11" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 250.0
-margin_right = 408.0
-margin_bottom = 271.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line12" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 275.0
-margin_right = 408.0
-margin_bottom = 296.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line13" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 300.0
-margin_right = 408.0
-margin_bottom = 321.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line14" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 325.0
-margin_right = 408.0
-margin_bottom = 346.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
-fit_content_height = true
-
-[node name="Line15" type="RichTextLabel" parent="Panel/VBoxContainer/Lines"]
-margin_top = 350.0
-margin_right = 408.0
-margin_bottom = 371.0
-custom_colors/default_color = Color( 0.388235, 0.388235, 0.388235, 1 )
-custom_fonts/normal_font = SubResource( 1 )
-bbcode_enabled = true
+size_flags_stretch_ratio = 0.25
+custom_fonts/normal_font = SubResource( 2 )
 fit_content_height = true
 
 [node name="Overlay" type="ColorRect" parent="."]

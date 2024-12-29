@@ -23,7 +23,6 @@ func _process(delta):
 	# Update and expand the radius
 	if current_radius < max_radius:
 		current_radius += expansion_speed * delta
-		print(current_radius)
 		collision.shape.radius = current_radius * 200
 		# Update the shader parameter
 		var material = ring_sprite.material
