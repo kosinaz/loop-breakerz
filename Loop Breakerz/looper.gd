@@ -92,6 +92,7 @@ func die():
 	var ring = ring_scene.instance()
 	ring.global_position = global_position
 	get_parent().add_child(ring)
+	animation_player.play("dead")
 
 func _on_damage_timer_timeout():
 	damaged = false

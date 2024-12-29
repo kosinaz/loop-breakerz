@@ -5,7 +5,7 @@
 [ext_resource path="res://assets/iterator-blade.png" type="Texture" id=4]
 
 [sub_resource type="CircleShape2D" id=1]
-radius = 5.0
+radius = 8.0
 
 [sub_resource type="Gradient" id=2]
 colors = PoolColorArray( 1, 0, 0, 0.533333, 1, 1, 1, 0 )
