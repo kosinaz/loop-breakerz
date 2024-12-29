@@ -13,4 +13,5 @@ func _on_token_body_entered(body):
 	var powerup = powerup_scene.instance()
 	powerup.global_position = global_position
 	get_parent().add_child(powerup)
+	get_parent().get_node("BreakerPanel").reveal_next()
 	queue_free()

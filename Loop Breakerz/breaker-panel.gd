@@ -96,31 +96,47 @@ func handle_input(c):
 	reveal()
 
 func reveal():
+	# Cache the command text and its length
+	var cmd_text = command.text
+	var cmd_len = cmd_text.length()
+	
 	for line in lines.get_children():
-		if line.text.begins_with(command.text):
-			var text = line.text
-			line.clear()
-			line.append_bbcode("[color=yellow]" + text.substr(0, command.text.length()) + "[/color]")
-			for i in range(command.text.length(), text.length()):
-				if i != (text.length() - 1) and revealed.has(text[i] + text[i + 1]):
-					line.append_bbcode("[color=white]" + text[i] + "[/color]")
-				elif revealed.has(text[i - 1] + text[i]):
-					line.append_bbcode("[color=white]" + text[i] + "[/color]")
-				else:
-					line.append_bbcode(text[i])
+		# Cache the line text and prepare a new BBCode string
+		var text = line.text
+		var bbcode_result = ""
+		
+		if text.begins_with(cmd_text):
+			# Highlight matching prefix
+			bbcode_result += "[color=yellow]" + text.substr(0, cmd_len) + "[/color]"
 			
-		else:
-			var text = line.text
-			line.clear()
-			for i in range(text.length()):
-				if i != (text.length() - 1) and revealed.has(text[i] + text[i + 1]):
-					line.append_bbcode("[color=white]" + text[i] + "[/color]")
-				elif revealed.has(text[i - 1] + text[i]):
-					line.append_bbcode("[color=white]" + text[i] + "[/color]")
+			# Process the remaining text
+			for i in range(cmd_len, text.length()):
+				var current_char = text[i]
+				var next_char = text[i + 1] if i < text.length() - 1 else ""
+				var prev_char = text[i - 1] if i > 0 else ""
+				
+				if revealed.has(current_char + next_char) or revealed.has(prev_char + current_char):
+					bbcode_result += "[color=white]" + current_char + "[/color]"
 				else:
-					line.append_bbcode(text[i])
+					bbcode_result += current_char
+		else:
+			# Process the entire line if it doesn't match the command
+			for i in range(text.length()):
+				var current_char = text[i]
+				var next_char = text[i + 1] if i < text.length() - 1 else ""
+				var prev_char = text[i - 1] if i > 0 else ""
+				
+				if revealed.has(current_char + next_char) or revealed.has(prev_char + current_char):
+					bbcode_result += "[color=white]" + current_char + "[/color]"
+				else:
+					bbcode_result += current_char
+		
+		# Apply the constructed BBCode to the line
+		line.clear()
+		line.append_bbcode(bbcode_result)
 
-func _on_Timer_timeout():
+	
+func reveal_next():
 	var r = randi() % (expected_command.length() - 1)
 	revealed.append(expected_command[r] + expected_command[r + 1])
 	reveal()
