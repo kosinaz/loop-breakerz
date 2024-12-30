@@ -4,7 +4,7 @@ var access_commands = [
 	["amplify", "calibrate", "realign", "transfer", "activate", "trigger", "initiate", "unseal", "locate", "engage", "elevate", "decrypt", "access", "disrupt", "crack"],
 	["sigma", "synthetic", "hyperion", "echo", "viral", "cascade", "parallel", "grid", "vortex", "quantum", "axis", "synaptic"],
 	["drive", "flux", "paradox", "circuit", "matrix", "frame", "axon", "subroutine", "node", "spectral", "synch", "fusion", "feedback"],
-	["essence", "synth", "pulse", "bind", "spectrum", "pathway", "stream", "loop", "field", "shield", "link"]
+	["essence", "pulse", "bind", "spectrum", "pathway", "stream", "loop", "field", "shield", "link"]
 ]
 var maintenance_commands = ["deploy", "queued", "entity", "at", "unlock", "zone", "gateway"]
 var coords = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"]
@@ -30,9 +30,9 @@ var entered_line = null
 var keywords = []
 var revealed = -1
 var guesses = []
-var zones = [Vector2(10, 7), Vector2(6, 5), Vector2(10, 1)]
-var spawners = [Vector2(6, 4), Vector2(2, 4), Vector2(1, 9), Vector2(3, 8), Vector2(2, 2), Vector2(7, 1)]
-var factory = Vector2(5, 5)
+var zones = []
+var spawners = []
+var factory = Vector2()
 onready var response_label = $"%Response"
 onready var keywords_label = $"%Keywords"
 onready var guesses_container = $"%Guesses"
@@ -46,6 +46,8 @@ func _ready():
 	generate()
 	
 func generate():
+	for zone in zones:
+		print(zone.room_position)
 	keywords = []
 	revealed = -1
 	access_command = ""
@@ -59,19 +61,19 @@ func generate():
 	if state == STATES.GRANTED:
 		keywords += maintenance_commands
 		for zone in zones:
-			if not keywords.has(coords[zone.x]):
-				keywords.append(coords[zone.x])
-			if not keywords.has(str(zone.y)):
-				keywords.append(str(zone.y))
+			if not keywords.has(coords[zone.room_position.x]):
+				keywords.append(coords[zone.room_position.x])
+			if not keywords.has(str(zone.room_position.y)):
+				keywords.append(str(zone.room_position.y))
 		for spawner in spawners:
-			if not keywords.has(coords[spawner.x]):
-				keywords.append(coords[spawner.x])
-			if not keywords.has(str(spawner.y)):
-				keywords.append(str(spawner.y))
-		if not keywords.has(coords[factory.x]):
-			keywords.append(coords[factory.x])
-		if not keywords.has(str(factory.y)):
-			keywords.append(str(factory.y))
+			if not keywords.has(coords[spawner.room_position.x]):
+				keywords.append(coords[spawner.room_position.x])
+			if not keywords.has(str(spawner.room_position.y)):
+				keywords.append(str(spawner.room_position.y))
+		if factory and not keywords.has(coords[factory.room_position.x]):
+			keywords.append(coords[factory.room_position.x])
+		if factory and not keywords.has(str(factory.room_position.y)):
+			keywords.append(str(factory.room_position.y))
 		
 	access_command = access_command.rstrip(" ")
 	print(access_command)
@@ -91,14 +93,12 @@ func _input(event):
 		handle_input(c)
 
 func execute_command():
-	print(state)
 	if state == STATES.WELCOME or state == STATES.DENIED:
-		print("checking")
 		if command_label.text.rstrip(" ") == access_command:
 			state = STATES.GRANTED
-			print("granted")
 			generate()
 			command_label.text = ""
+			response_label.text = responses[state]
 			return
 		elif command_label.text.rstrip(" ").split(" ").size() == 4:
 			var guess = command_label.duplicate()
@@ -106,6 +106,7 @@ func execute_command():
 			guesses_container.add_child(guess)
 		state = STATES.DENIED
 		command_label.text = ""
+		response_label.text = responses[state]
 		return
 	var command = command_label.text.rstrip(" ")
 	var words = command.split(" ")
@@ -118,19 +119,25 @@ func execute_command():
 		if factory == pos:
 			state = STATES.DEPLOYED
 			command_label.text = ""
+			response_label.text = responses[state]
 			return
 		if spawners.has(pos):
 			state = STATES.DEPLOYED
 			command_label.text = ""
+			response_label.text = responses[state]
 			return
 	if command.begins_with("unlock zone gateway at"):
 		var pos = Vector2(coords.find(words[4]), int(words[5]))
-		if zones.has(pos):
-			state = STATES.UNLOCKED
-			command_label.text = ""
-			return
+		for zone in zones:
+			if zone.room_position == pos:
+				zone.unlock()
+				state = STATES.UNLOCKED
+				command_label.text = ""
+				response_label.text = responses[state]
+				return
 	state = STATES.INVALID
 	command_label.text = ""
+	response_label.text = responses[state]
 
 func handle_input(c):
 	var current_word = Array(command_label.text.split(" ")).back()
