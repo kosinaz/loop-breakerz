@@ -32,34 +32,48 @@ margin_bottom = 557.0
 [node name="Response" type="RichTextLabel" parent="Panel/VBoxContainer"]
 unique_name_in_owner = true
 margin_right = 408.0
-margin_bottom = 42.0
+margin_bottom = 21.0
 custom_fonts/normal_font = SubResource( 1 )
-text = "Stage 1 access denied!
-Enter a valid command to continue!"
+bbcode_enabled = true
 fit_content_height = true
 
 [node name="Keywords" type="RichTextLabel" parent="Panel/VBoxContainer"]
 unique_name_in_owner = true
-margin_top = 46.0
+margin_top = 25.0
 margin_right = 408.0
-margin_bottom = 67.0
+margin_bottom = 46.0
 custom_fonts/normal_font = SubResource( 1 )
 text = "Traced keywords: "
 fit_content_height = true
 
 [node name="Guesses" type="VBoxContainer" parent="Panel/VBoxContainer"]
 unique_name_in_owner = true
-margin_top = 71.0
+margin_top = 50.0
 margin_right = 408.0
-margin_bottom = 71.0
+margin_bottom = 50.0
 
-[node name="Command" type="RichTextLabel" parent="Panel/VBoxContainer"]
-unique_name_in_owner = true
-margin_top = 75.0
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 54.0
 margin_right = 408.0
-margin_bottom = 96.0
+margin_bottom = 75.0
+
+[node name="Cursor" type="Label" parent="Panel/VBoxContainer/HBoxContainer"]
+margin_top = 3.0
+margin_right = 8.0
+margin_bottom = 17.0
+size_flags_stretch_ratio = 0.25
+custom_colors/font_color = Color( 0, 1, 0.0156863, 1 )
+text = ">"
+
+[node name="Command" type="RichTextLabel" parent="Panel/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+margin_left = 12.0
+margin_right = 408.0
+margin_bottom = 21.0
+size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.25
 custom_fonts/normal_font = SubResource( 2 )
+bbcode_enabled = true
 fit_content_height = true
 
 [node name="Overlay" type="ColorRect" parent="."]

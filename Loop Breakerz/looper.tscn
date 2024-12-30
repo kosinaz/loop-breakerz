@@ -61,7 +61,6 @@ color = Color( 0.933333, 0.929412, 0.513726, 0.513726 )
 color_ramp = SubResource( 2 )
 
 [node name="Sprite" type="Sprite" parent="."]
-modulate = Color( 1, 0, 0, 1 )
 rotation = 1.5708
 texture = ExtResource( 1 )
 

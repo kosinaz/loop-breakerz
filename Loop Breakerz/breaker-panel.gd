@@ -50,7 +50,7 @@ func generate():
 		expected_command += commands[i][0] + " "
 	expected_command = expected_command.rstrip(" ")
 	print(expected_command)
-	keywords.shuffle()
+	keywords.sort()
 	keywords_label.text = "Traced keywords:\n"
 	for keyword in keywords:
 		keywords_label.text += keyword + " "
@@ -60,15 +60,13 @@ func _input(event):
 		return
 	var c = event.as_text().to_lower()
 	if c == "enter":
-		print(command_label.text.split(" "))
 		if command_label.text.rstrip(" ") == expected_command:
 			if stage < 3:
 				stage += 1
 			generate()
 		elif command_label.text.rstrip(" ").split(" ").size() == 4:
-			guesses.append(command_label.text)
 			var guess = command_label.duplicate()
-			guess.text = guess.text
+			guess.text = guess.text.rstrip(" ")
 			guesses_container.add_child(guess)
 		command_label.text = ""
 		return
@@ -86,30 +84,19 @@ func handle_input(c):
 
 
 func reveal_next():
-	print(revealed)
 	if guesses_container.get_child_count() <= revealed + 1:
 		return
 	revealed += 1
-	var guess = guesses_container.get_child(revealed).text
-	print(guess)
-	var words = guess.split(" ")
-#	var correct_words = expected_command.split(" ")
-#	var feedback = []
-#
-#	# Compare each word in the guess with the expected command
-#	for i in range(guess_words.size()):
-#		if guess_words[i] == correct_words[i]:
-#			feedback.append("correct")  # Correct word in correct place
-#		elif correct_words.has(guess_words[i]):
-#			feedback.append("wrong_place")  # Correct word in wrong place
-#		else:
-#			feedback.append("wrong")  # Wrong word
-#
-#	# Now reveal the correct words and their locations using feedback
-#	for i in range(feedback.size()):
-#		if feedback[i] == "correct":
-#			revealed.append(guess_words[i] + "_correct")
-#		elif feedback[i] == "wrong_place":
-#			revealed.append(guess_words[i] + "_wrong_place")
-#
-#	reveal()  # Update the lines with the feedback
+	var guess = guesses_container.get_child(revealed)
+	var words = guess.text.split(" ")
+	var expected_words = expected_command.split(" ")
+	var revealed_text = ""
+	for i in range(words.size()):
+		if expected_words[i] == words[i]:
+			revealed_text += "[color=#00ff00]" + words[i] + "[/color] "
+			continue
+		if expected_words.has(words[i]):
+			revealed_text += "[color=yellow][u]" + words[i] + "[/u][/color] "
+			continue
+		revealed_text += "[color=red][s]" + words[i] + "[/s][/color] "
+	guess.bbcode_text = revealed_text
