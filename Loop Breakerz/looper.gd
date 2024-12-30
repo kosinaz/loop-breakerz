@@ -2,7 +2,7 @@ extends KinematicBody2D
 
 # Player speed and velocity
 var speed = 40
-var health = 10
+var health = 100
 var velocity = Vector2()
 var damaged = false
 var died = false
