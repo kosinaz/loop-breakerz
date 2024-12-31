@@ -9,12 +9,12 @@ var access_commands = [
 var maintenance_commands = ["deploy", "queued", "entity", "at", "unlock", "zone", "gateway"]
 var coords = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"]
 var responses = [
-	"Welcome to the ZONE zone!\nEnter a valid command to continue!",
+	"Welcome to the UPGRADE zone!\nEnter a valid command to continue!",
 	"Access denied!\nEnter a valid command to continue!",
 	"Access granted!\nEnter a valid zone maintenance command!",
 	"Invalid command!\nEnter a valid zone maintenance command!",
 	"UPGRADE is deployed at POSITION!\nEnter a valid zone maintenance command!",
-	"ZONE gateway is unlocked at POSITION!\nEnter a valid zone maintenance command!",
+	"UPGRADE gateway is unlocked at POSITION!\nEnter a valid zone maintenance command!",
 ]
 enum STATES {
 	WELCOME,
@@ -33,6 +33,7 @@ var guesses = []
 var zones = []
 var spawners = []
 var factory = Vector2()
+var upgrade = ""
 onready var response_label = $"%Response"
 onready var keywords_label = $"%Keywords"
 onready var guesses_container = $"%Guesses"
@@ -41,13 +42,15 @@ onready var overlay = $Overlay
 
 func _ready():
 	randomize()
+	
+func init():
 	state = STATES.WELCOME
-	response_label.text = responses[state]
+	response_label.text = responses[state].replace("UPGRADE", upgrade)
 	generate()
 	
 func generate():
 	for zone in zones:
-		print(zone.room_position)
+		print("door: ", zone.door.room_position)
 	keywords = []
 	revealed = -1
 	access_command = ""
@@ -61,10 +64,10 @@ func generate():
 	if state == STATES.GRANTED:
 		keywords += maintenance_commands
 		for zone in zones:
-			if not keywords.has(coords[zone.room_position.x]):
-				keywords.append(coords[zone.room_position.x])
-			if not keywords.has(str(zone.room_position.y)):
-				keywords.append(str(zone.room_position.y))
+			if not keywords.has(coords[zone.door.room_position.x]):
+				keywords.append(coords[zone.door.room_position.x])
+			if not keywords.has(str(zone.door.room_position.y)):
+				keywords.append(str(zone.door.room_position.y))
 		for spawner in spawners:
 			if not keywords.has(coords[spawner.room_position.x]):
 				keywords.append(coords[spawner.room_position.x])
@@ -129,11 +132,11 @@ func execute_command():
 	if command.begins_with("unlock zone gateway at"):
 		var pos = Vector2(coords.find(words[4]), int(words[5]))
 		for zone in zones:
-			if zone.room_position == pos:
-				zone.unlock()
+			if zone.door.room_position == pos:
+				zone.door.unlock()
 				state = STATES.UNLOCKED
 				command_label.text = ""
-				response_label.text = responses[state]
+				response_label.text = responses[state].replace("UPGRADE", zone.upgrade).replace("POSITION", words[4] + words[5])
 				return
 	state = STATES.INVALID
 	command_label.text = ""
@@ -153,11 +156,11 @@ func reveal_next():
 	if not (state == STATES.WELCOME or state == STATES.DENIED):
 		if guesses_container.get_child_count() == 0:
 			var guess = command_label.duplicate()
-			guess.bbcode_text = "[color=#00ff00]deploy queued entity at[/color] [color=red][s]alpha 1[/s][/color] "
+			guess.bbcode_text = "[color=#00ff00]deploy queued entity at[/color] [color=red][s]bravo 99[/s][/color] "
 			guesses_container.add_child(guess)
 		elif guesses_container.get_child_count() == 1:
 			var guess = command_label.duplicate()
-			guess.bbcode_text = "[color=#00ff00]unlock zone gateway at[/color] [color=red][s]alpha 1[/s][/color] "
+			guess.bbcode_text = "[color=#00ff00]unlock zone gateway at[/color] [color=red][s]bravo 99[/s][/color] "
 			guesses_container.add_child(guess)
 		return
 	if guesses_container.get_child_count() <= revealed + 1:

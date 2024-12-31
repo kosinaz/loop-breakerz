@@ -14,6 +14,7 @@ var map_position = Vector2()
 var current_zone_position = Vector2()
 var zone = null
 var current_room = null
+var upgrades = ["malfunction", "bug", "crash", "issue", "glitch", "regression", "outage"]
 onready var tilemap = $TileMap
 onready var tilemap2 = $TileMap2
 onready var player = $Looper
@@ -39,7 +40,9 @@ func _process(_delta):
 		var rect = Rect2(tilemap.map_to_world(room.position), tilemap.map_to_world(room.size))
 		if rect.has_point(player.position):
 			current_room = room
-			panel.zones = room.doors
+			panel.zones = room.neighbors
+			panel.upgrade = room.upgrade
+			panel.init()
 
 func generate_room(zone_position: Vector2):
 	# Randomly offset the room_position
@@ -65,13 +68,18 @@ func generate_room(zone_position: Vector2):
 	for spawner in spawners:
 		tilemap2.set_cellv(room_position + spawner, 1)
 	
-	# Return the room's bounds for corridor placement
+	var upgrade = upgrades.pop_front()
+	upgrades.shuffle()
+	upgrades.append(upgrade)
+
 	zones[zone_position] = {
 		"position": room_position, 
 		"size": size,
 		"enemies": 0,
 		"spawners": spawners,
-		"doors": [],
+		"upgrade": upgrade,
+		"door": null,
+		"neighbors": [],
 	}
 
 func add_neighbors(zone_position: Vector2):
@@ -174,9 +182,10 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 	door.room_position = tilemap.world_to_map(door.position) - room_b_position if switched else room_a_position
 	door.get_node("Sprite").rotation_degrees = 0 if rotated else 90
 	door.to_zone = zone_b_position
+	zones[zone_b_position].door = door
+	zones[zone_a_position].neighbors.append(zones[zone_b_position])
 	key += 1
 	add_child(door)
-	zones[zone_a_position].doors.append(door)
 	tilemap.update_bitmask_region(zone_a_position * zone_size, zone_a_position * zone_size + zone_size)
 	tilemap.update_bitmask_region(zone_b_position * zone_size, zone_b_position * zone_size + zone_size)
 
@@ -193,10 +202,14 @@ func add_enemy(scene):
 		return
 	if get_enemies_in_room(zones[current_zone_position]).size() > 25:
 		return
+	var room = zones[current_zone_position]
+	var rect = Rect2(tilemap.map_to_world(room.position), tilemap.map_to_world(room.size))
+	if not rect.has_point(player.position):
+		return
 	zones[current_zone_position].enemies += 1
 	var room_position = zones[current_zone_position].position
 	var spawner = zones[current_zone_position].spawners.pop_front()
-	zones[current_zone_position].spawners.push_back(spawner)
+	zones[current_zone_position].spawners.append(spawner)
 	var enemy = scene.instance()
 	enemy.position = tilemap.map_to_world(room_position + spawner) + Vector2(16, 16)
 	add_child(enemy)
