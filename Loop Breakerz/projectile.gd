@@ -4,6 +4,7 @@ extends KinematicBody2D
 export var speed = 200
 var direction = Vector2()
 var floating_text_scene = preload("res://floating_text.tscn")
+var damage_mod = 1
 
 # Explosion scene reference
 export (PackedScene) var explosion_scene
@@ -29,7 +30,7 @@ func handle_collision(collision):
 	# Set the explosion position to the projectile's current position
 	explosion.global_position = global_position
 	
-	var damage = 4 + randi() % 12
+	var damage = (4 + randi() % 12) * damage_mod
 	var collider = collision.collider
 	if collider.has_method("take_damage"):
 		collider.take_damage(damage)

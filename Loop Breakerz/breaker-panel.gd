@@ -35,6 +35,7 @@ var zones = []
 var spawners = []
 var factory = Vector2()
 var upgrade = ""
+var upgrade_scene = preload("res://upgrade.tscn")
 onready var response_label = $"%Response"
 onready var keywords_label = $"%Keywords"
 onready var guesses_container = $"%Guesses"
@@ -50,6 +51,7 @@ func init():
 	generate()
 	
 func generate():
+	print("f", factory)
 	keywords = []
 	keywords_revealed = []
 	revealed = -1
@@ -73,10 +75,10 @@ func generate():
 				keywords.append(coords[spawner.room_position.x])
 			if not keywords.has(str(spawner.room_position.y)):
 				keywords.append(str(spawner.room_position.y))
-		if factory and not keywords.has(coords[factory.room_position.x]):
-			keywords.append(coords[factory.room_position.x])
-		if factory and not keywords.has(str(factory.room_position.y)):
-			keywords.append(str(factory.room_position.y))
+		if factory and not keywords.has(coords[factory.x]):
+			keywords.append(coords[factory.x])
+		if factory and not keywords.has(str(factory.y)):
+			keywords.append(str(factory.y))
 	access_command = access_command.rstrip(" ")
 	print(access_command)
 	keywords.sort()
@@ -124,6 +126,9 @@ func execute_command():
 			state = STATES.DEPLOYED
 			command_label.text = ""
 			response_label.text = responses[state]
+			var upgrade = upgrade_scene.instance()
+			upgrade.global_position = get_parent().tilemap.map_to_world(pos)
+			get_parent().add_child(upgrade)
 			return
 		if spawners.has(pos):
 			state = STATES.DEPLOYED

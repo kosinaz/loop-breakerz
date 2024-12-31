@@ -14,7 +14,7 @@ var map_position = Vector2()
 var current_zone_position = Vector2()
 var zone = null
 var current_room = null
-var upgrades = ["malfunction", "bug", "crash", "issue", "glitch", "regression", "outage"]
+var upgrades = ["adaptability", "velocity", "severity", "frequency"]
 onready var tilemap = $TileMap
 onready var tilemap2 = $TileMap2
 onready var player = $Looper
@@ -26,6 +26,8 @@ func _ready():
 
 	generate_room(Vector2(0, 0))
 	add_neighbors(Vector2(0, 0))
+	
+	player.position = tilemap.map_to_world(zones[Vector2()].position + zones[Vector2()].factory) + Vector2(16, 16)
 	
 	for _i in range(3):
 		add_enemy(incrementer_scene)
@@ -41,6 +43,7 @@ func _process(_delta):
 		if rect.has_point(player.position):
 			current_room = room
 			panel.zones = room.neighbors
+			panel.factory = room.factory
 			panel.upgrade = room.upgrade
 			panel.init()
 
@@ -67,6 +70,8 @@ func generate_room(zone_position: Vector2):
 	spawners.resize(6)
 	for spawner in spawners:
 		tilemap2.set_cellv(room_position + spawner, 1)
+	spawners.shuffle()
+	var factory = spawners.pop_front()
 	
 	var upgrade = upgrades.pop_front()
 	upgrades.shuffle()
@@ -77,6 +82,7 @@ func generate_room(zone_position: Vector2):
 		"size": size,
 		"enemies": 0,
 		"spawners": spawners,
+		"factory": factory,
 		"upgrade": upgrade,
 		"door": null,
 		"neighbors": [],

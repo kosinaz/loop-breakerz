@@ -2,10 +2,12 @@ extends KinematicBody2D
 
 # Player speed and velocity
 var speed = 40
-var health = 100
+var health = 1000
+var health_max = 10
 var velocity = Vector2()
 var damaged = false
 var died = false
+var damage_mod = 1
 
 # Direction the player is moving in (store last pressed direction)
 var move_direction = Vector2()
@@ -55,6 +57,7 @@ func shoot():
 	var projectile = projectile_scene.instance()
 	projectile.global_position = global_position
 	projectile.rotation = rotation
+	projectile.damage_mod = damage_mod
 	var enemies = get_tree().get_nodes_in_group("enemies")
 	if not enemies:
 		return
