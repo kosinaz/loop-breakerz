@@ -1,12 +1,12 @@
 extends CanvasLayer
 
 var access_commands = [
-	["amplify", "calibrate", "realign", "transfer", "activate", "trigger", "initiate", "unseal", "locate", "engage", "elevate", "decrypt", "access", "disrupt", "crack"],
-	["sigma", "synthetic", "hyperion", "echo", "viral", "cascade", "parallel", "grid", "vortex", "quantum", "axis", "synaptic"],
-	["drive", "flux", "paradox", "circuit", "matrix", "frame", "axon", "subroutine", "node", "spectral", "synch", "fusion", "feedback"],
-	["essence", "pulse", "bind", "spectrum", "pathway", "stream", "loop", "field", "shield", "link"]
+	["activate", "initiate", "calibrate", "elevate", "replicate", "generate", "terminate", "validate", "coordinate", "simulate"],
+	["cybernetic", "telemetric", "magnetic", "synthetic", "electric", "dynamic", "static", "kinetic", "bionic", "cryogenic"],
+	["xenovector", "nexalith", "exodrive", "vortexium", "xylotron", "quantaflux", "axionet", "neuromatrix", "protonexus", "preparadox"],
+	["module", "field", "link", "core", "hub", "network", "node", "unit", "grid", "array"]
 ]
-var maintenance_commands = ["deploy", "queued", "entity", "at", "unlock", "zone", "gateway"]
+var maintenance_commands = ["deploy", "entity", "unlock", "gateway"]
 var coords = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"]
 var responses = [
 	"Welcome to the UPGRADE zone!\nEnter a valid command to continue!",
@@ -50,8 +50,6 @@ func init():
 	generate()
 	
 func generate():
-	for zone in zones:
-		print("door: ", zone.door.room_position)
 	keywords = []
 	keywords_revealed = []
 	revealed = -1
@@ -61,7 +59,7 @@ func generate():
 	if state == STATES.WELCOME:
 		for i in access_commands.size():
 			access_commands[i].shuffle()
-			keywords += access_commands[i].slice(0, 5)
+			keywords += access_commands[i].slice(0, 3)
 			access_command += access_commands[i][0] + " "
 	if state == STATES.GRANTED:
 		keywords += maintenance_commands
@@ -79,9 +77,7 @@ func generate():
 			keywords.append(coords[factory.room_position.x])
 		if factory and not keywords.has(str(factory.room_position.y)):
 			keywords.append(str(factory.room_position.y))
-		
 	access_command = access_command.rstrip(" ")
-	print(access_command)
 	keywords.sort()
 	keywords_revealed = keywords.duplicate()
 	keywords_revealed.fill(0)
@@ -117,12 +113,12 @@ func execute_command():
 		return
 	var command = command_label.text.rstrip(" ")
 	var words = command.split(" ")
-	if words.size() != 6:
+	if words.size() != 4:
 		state = STATES.INVALID
 		command_label.text = ""
 		return
-	if command.begins_with("deploy queued entity at"):
-		var pos = Vector2(coords.find(words[4]), int(words[5]))
+	if command.begins_with("deploy entity"):
+		var pos = Vector2(coords.find(words[2]), int(words[3]))
 		if factory == pos:
 			state = STATES.DEPLOYED
 			command_label.text = ""
@@ -133,14 +129,14 @@ func execute_command():
 			command_label.text = ""
 			response_label.text = responses[state]
 			return
-	if command.begins_with("unlock zone gateway at"):
-		var pos = Vector2(coords.find(words[4]), int(words[5]))
+	if command.begins_with("unlock gateway"):
+		var pos = Vector2(coords.find(words[2]), int(words[3]))
 		for zone in zones:
 			if zone.door.room_position == pos:
 				zone.door.unlock()
 				state = STATES.UNLOCKED
 				command_label.text = ""
-				response_label.text = responses[state].replace("UPGRADE", zone.upgrade).replace("POSITION", words[4] + words[5])
+				response_label.text = responses[state].replace("UPGRADE", zone.upgrade).replace("POSITION", words[2] + " " + words[3])
 				return
 	state = STATES.INVALID
 	command_label.text = ""
@@ -155,16 +151,15 @@ func handle_input(c):
 				command_label.text += " " 
 			break
 
-
 func reveal_next():
 	if not (state == STATES.WELCOME or state == STATES.DENIED):
 		if guesses_container.get_child_count() == 0:
 			var guess = command_label.duplicate()
-			guess.bbcode_text = "[color=#00ff00]deploy queued entity at[/color] [color=red][s]bravo 99[/s][/color] "
+			guess.bbcode_text = "[color=#00ff00]deploy entity[/color] [color=red][s]bravo 99[/s][/color] "
 			guesses_container.add_child(guess)
 		elif guesses_container.get_child_count() == 1:
 			var guess = command_label.duplicate()
-			guess.bbcode_text = "[color=#00ff00]unlock zone gateway at[/color] [color=red][s]bravo 99[/s][/color] "
+			guess.bbcode_text = "[color=#00ff00]unlock gateway[/color] [color=red][s]bravo 99[/s][/color] "
 			guesses_container.add_child(guess)
 		return
 	if guesses_container.get_child_count() <= revealed + 1:
@@ -177,20 +172,23 @@ func reveal_next():
 	for i in range(words.size()):
 		if expected_words[i] == words[i]:
 			revealed_text += "[color=#00ff00]" + words[i] + "[/color] "
-			keywords_revealed[keywords.find(words[i])] = 2
+			keywords_revealed[keywords.find(words[i])] = 3
 			continue
 		if expected_words.has(words[i]):
 			revealed_text += "[color=yellow][u]" + words[i] + "[/u][/color] "
-			keywords_revealed[keywords.find(words[i])] = max(keywords_revealed[keywords.find(words[i])], 1)
+			keywords_revealed[keywords.find(words[i])] = max(keywords_revealed[keywords.find(words[i])], 2)
 			continue
 		revealed_text += "[color=red][s]" + words[i] + "[/s][/color] "
+		keywords_revealed[keywords.find(words[i])] = 1
 	guess.bbcode_text = revealed_text
 	var revealed_words = ""
 	for i in range(keywords.size()):
 		if keywords_revealed[i] == 0:
 			revealed_words += keywords[i] + " "
 		if keywords_revealed[i] == 1:
-			revealed_words += "[color=yellow][u]" + keywords[i] + "[/u][/color] "
+			revealed_words += "[color=red][s]" + keywords[i] + "[/s][/color] "
 		if keywords_revealed[i] == 2:
+			revealed_words += "[color=yellow][u]" + keywords[i] + "[/u][/color] "
+		if keywords_revealed[i] == 3:
 			revealed_words += "[color=#00ff00]" + keywords[i] + "[/color] "
 	keywords_label.bbcode_text = "Traced keywords:\n" + revealed_words
