@@ -28,6 +28,7 @@ var state = STATES.WELCOME
 var access_command = ""
 var entered_line = null
 var keywords = []
+var keywords_revealed = []
 var revealed = -1
 var guesses = []
 var zones = []
@@ -52,6 +53,7 @@ func generate():
 	for zone in zones:
 		print("door: ", zone.door.room_position)
 	keywords = []
+	keywords_revealed = []
 	revealed = -1
 	access_command = ""
 	for guess in guesses_container.get_children():
@@ -81,6 +83,8 @@ func generate():
 	access_command = access_command.rstrip(" ")
 	print(access_command)
 	keywords.sort()
+	keywords_revealed = keywords.duplicate()
+	keywords_revealed.fill(0)
 	keywords_label.text = "Traced keywords:\n"
 	for keyword in keywords:
 		keywords_label.text += keyword + " "
@@ -173,9 +177,20 @@ func reveal_next():
 	for i in range(words.size()):
 		if expected_words[i] == words[i]:
 			revealed_text += "[color=#00ff00]" + words[i] + "[/color] "
+			keywords_revealed[keywords.find(words[i])] = 2
 			continue
 		if expected_words.has(words[i]):
 			revealed_text += "[color=yellow][u]" + words[i] + "[/u][/color] "
+			keywords_revealed[keywords.find(words[i])] = max(keywords_revealed[keywords.find(words[i])], 1)
 			continue
 		revealed_text += "[color=red][s]" + words[i] + "[/s][/color] "
 	guess.bbcode_text = revealed_text
+	var revealed_words = ""
+	for i in range(keywords.size()):
+		if keywords_revealed[i] == 0:
+			revealed_words += keywords[i] + " "
+		if keywords_revealed[i] == 1:
+			revealed_words += "[color=yellow][u]" + keywords[i] + "[/u][/color] "
+		if keywords_revealed[i] == 2:
+			revealed_words += "[color=#00ff00]" + keywords[i] + "[/color] "
+	keywords_label.bbcode_text = "Traced keywords:\n" + revealed_words
