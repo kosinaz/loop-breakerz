@@ -9,12 +9,12 @@ var access_commands = [
 var maintenance_commands = ["deploy", "entity", "unlock", "gateway"]
 var coords = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"]
 var responses = [
-	"Welcome to the UPGRADE zone!\nEnter a valid command to continue!",
-	"Access denied!\nEnter a valid command to continue!",
+	"Welcome to the UPGRADE zone!\nEnter a valid command of 4 keywords to continue!",
+	"Access denied!\nEnter a valid command of 4 keywords to continue!",
 	"Access granted!\nEnter a valid zone maintenance command!",
 	"Invalid command!\nEnter a valid zone maintenance command!",
-	"UPGRADE is deployed at POSITION!\nEnter a valid zone maintenance command!",
-	"UPGRADE gateway is unlocked at POSITION!\nEnter a valid zone maintenance command!",
+	"The UPGRADE generator is deployed at POSITION!\nEnter a valid zone maintenance command!",
+	"The UPGRADE gateway is unlocked at POSITION!\nEnter a valid zone maintenance command!",
 ]
 enum STATES {
 	WELCOME,
@@ -78,6 +78,7 @@ func generate():
 		if factory and not keywords.has(str(factory.room_position.y)):
 			keywords.append(str(factory.room_position.y))
 	access_command = access_command.rstrip(" ")
+	print(access_command)
 	keywords.sort()
 	keywords_revealed = keywords.duplicate()
 	keywords_revealed.fill(0)
@@ -155,11 +156,11 @@ func reveal_next():
 	if not (state == STATES.WELCOME or state == STATES.DENIED):
 		if guesses_container.get_child_count() == 0:
 			var guess = command_label.duplicate()
-			guess.bbcode_text = "[color=#00ff00]deploy entity[/color] [color=red][s]bravo 99[/s][/color] "
+			guess.bbcode_text = "[color=#00ff00]deploy entity[/color] [color=red][s]omega 99[/s][/color] "
 			guesses_container.add_child(guess)
 		elif guesses_container.get_child_count() == 1:
 			var guess = command_label.duplicate()
-			guess.bbcode_text = "[color=#00ff00]unlock gateway[/color] [color=red][s]bravo 99[/s][/color] "
+			guess.bbcode_text = "[color=#00ff00]unlock gateway[/color] [color=red][s]omega 99[/s][/color] "
 			guesses_container.add_child(guess)
 		return
 	if guesses_container.get_child_count() <= revealed + 1:
