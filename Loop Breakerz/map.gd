@@ -6,6 +6,7 @@ var tile_id = 0  # ID for walkable tiles
 var door_scene = preload("res://door.tscn")
 var incrementer_scene = preload("res://incrementer.tscn")
 var iterator_scene = preload("res://iterator.tscn")
+var upgrade_scene = preload("res://upgrade.tscn")
 var rng = RandomNumberGenerator.new()
 var zones = {}
 var enemy_limit = 15
@@ -228,3 +229,14 @@ func get_enemies_in_room(room):
 		if rect.has_point(enemy.position):
 			enemies.append(enemy)
 	return enemies
+
+func deploy_upgrade():
+	var new_upgrade = upgrade_scene.instance()
+	new_upgrade.position = tilemap.map_to_world(current_room.position + current_room.factory) + Vector2(16, 16)
+	new_upgrade.set_type(current_room.upgrade)
+	add_child(new_upgrade)
+
+func get_player_room_position():
+	var room = zones[current_zone_position]
+	var player_position = tilemap.world_to_map(player.position) - room.position
+	return player_position

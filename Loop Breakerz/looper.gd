@@ -2,7 +2,7 @@ extends KinematicBody2D
 
 # Player speed and velocity
 var speed = 40
-var health = 1000
+var health = 10
 var health_max = 10
 var velocity = Vector2()
 var damaged = false
@@ -96,6 +96,13 @@ func die():
 	ring.global_position = global_position
 	get_parent().add_child(ring)
 	animation_player.play("dead")
+	get_parent().panel.eliminate()
+	
+func revive():
+	died = false
+	animation_player.play("hit")
+	health = health_max
+	health_bar.value = health
 
 func _on_damage_timer_timeout():
 	damaged = false

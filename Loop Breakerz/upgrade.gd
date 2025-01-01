@@ -4,10 +4,10 @@ var powerup_scene = preload("res://powerup.tscn")
 var upgrade_type = ""
 
 func _process(_delta):
-	$Sprite2.rotation_degrees += 1
+	$Sprite2.rotation_degrees += 8
 
 func set_type(new_upgrade_type):
-	upgrade_type == new_upgrade_type
+	upgrade_type = new_upgrade_type
 	$Sprite.texture = load("res://assets/" + new_upgrade_type + ".png")
 
 func _on_token_body_entered(body):
@@ -17,7 +17,7 @@ func _on_token_body_entered(body):
 		body.health_max *= 1.5
 		body.health_bar.max_value = body.health_max
 	if upgrade_type == "frequency":
-		body.get_node("Timer").wait_time /= 1.5
+		body.get_node("AttackTimer").wait_time /= 1.5
 	if upgrade_type == "severity":
 		body.damage_mod *= 1.5
 	if upgrade_type == "velocity":
