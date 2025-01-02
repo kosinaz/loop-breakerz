@@ -1,10 +1,13 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://breaker-panel.gd" type="Script" id=1]
 [ext_resource path="res://Iceberg-Regular.ttf" type="DynamicFontData" id=2]
 
 [sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 0.0745098, 0.0705882, 0.184314, 1 )
+
+[sub_resource type="DynamicFont" id=4]
+font_data = ExtResource( 2 )
 
 [sub_resource type="DynamicFont" id=1]
 extra_spacing_space = 4
@@ -29,33 +32,97 @@ margin_top = 8.0
 margin_right = 416.0
 margin_bottom = 557.0
 
+[node name="Level" type="Label" parent="Panel/VBoxContainer"]
+unique_name_in_owner = true
+margin_right = 410.0
+margin_bottom = 20.0
+custom_colors/font_color = Color( 1, 1, 0, 1 )
+custom_fonts/font = SubResource( 4 )
+text = "Target acquired: Looper V1"
+
+[node name="GridContainer" type="GridContainer" parent="Panel/VBoxContainer"]
+margin_top = 24.0
+margin_right = 410.0
+margin_bottom = 68.0
+custom_constants/hseparation = 16
+columns = 2
+
+[node name="Adaptibility" type="Label" parent="Panel/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+margin_right = 100.0
+margin_bottom = 20.0
+custom_fonts/font = SubResource( 4 )
+text = "Adaptibility: 10"
+
+[node name="Velocity" type="Label" parent="Panel/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+margin_left = 116.0
+margin_right = 210.0
+margin_bottom = 20.0
+custom_fonts/font = SubResource( 4 )
+text = "Velocity: 40"
+
+[node name="Frequency" type="Label" parent="Panel/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+margin_top = 24.0
+margin_right = 100.0
+margin_bottom = 44.0
+custom_fonts/font = SubResource( 4 )
+text = "Frequency: 2"
+
+[node name="Severity" type="Label" parent="Panel/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+margin_left = 116.0
+margin_top = 24.0
+margin_right = 210.0
+margin_bottom = 44.0
+custom_fonts/font = SubResource( 4 )
+text = "Severity: 4-14"
+
+[node name="HR" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 72.0
+margin_right = 410.0
+margin_bottom = 92.0
+custom_fonts/font = SubResource( 4 )
+text = "----------------------------------------------------------------------------------"
+
+[node name="Zone" type="Label" parent="Panel/VBoxContainer"]
+unique_name_in_owner = true
+margin_top = 96.0
+margin_right = 410.0
+margin_bottom = 116.0
+custom_colors/font_color = Color( 1, 1, 0, 1 )
+custom_fonts/font = SubResource( 4 )
+text = "Current zone: ZONE"
+
 [node name="Response" type="RichTextLabel" parent="Panel/VBoxContainer"]
 unique_name_in_owner = true
-margin_right = 408.0
-margin_bottom = 21.0
+margin_top = 120.0
+margin_right = 410.0
+margin_bottom = 141.0
 custom_fonts/normal_font = SubResource( 1 )
 bbcode_enabled = true
 fit_content_height = true
 
 [node name="Keywords" type="RichTextLabel" parent="Panel/VBoxContainer"]
 unique_name_in_owner = true
-margin_top = 25.0
-margin_right = 408.0
-margin_bottom = 46.0
+margin_top = 145.0
+margin_right = 410.0
+margin_bottom = 166.0
 custom_fonts/normal_font = SubResource( 1 )
 bbcode_enabled = true
 fit_content_height = true
 
 [node name="Guesses" type="VBoxContainer" parent="Panel/VBoxContainer"]
 unique_name_in_owner = true
-margin_top = 50.0
-margin_right = 408.0
-margin_bottom = 50.0
+margin_top = 170.0
+margin_right = 410.0
+margin_bottom = 170.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
-margin_top = 54.0
-margin_right = 408.0
-margin_bottom = 75.0
+margin_top = 174.0
+margin_right = 410.0
+margin_bottom = 195.0
 
 [node name="Cursor" type="Label" parent="Panel/VBoxContainer/HBoxContainer"]
 margin_top = 3.0
@@ -67,7 +134,7 @@ text = ">"
 [node name="Command" type="RichTextLabel" parent="Panel/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 margin_left = 12.0
-margin_right = 408.0
+margin_right = 410.0
 margin_bottom = 21.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.25

@@ -10,13 +10,13 @@ var maintenance_commands = ["deploy", "entity", "unlock", "gateway"]
 var reset_commands = ["reset", "looper"]
 var coords = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"]
 var responses = [
-	"Welcome to the UPGRADE zone!\nEnter a valid command of 4 keywords to continue!",
+	"Enter a valid command of 4 keywords to continue!",
 	"Access denied!\nEnter a valid command of 4 keywords to continue!",
 	"Access granted!\nEnter a valid zone maintenance command!",
 	"Invalid command!\nEnter a valid zone maintenance command!",
 	"The UPGRADE generator is deployed at POSITION!\nEnter a valid zone maintenance command!",
 	"The UPGRADE gateway is unlocked at POSITION!\nEnter a valid zone maintenance command!",
-	"Threat eliminated! Enter a valid command to reset!",
+	"Target neutralized! Enter a valid command to reset!",
 	"Invalid command! Enter a valid command to reset!",
 ]
 enum STATES {
@@ -39,11 +39,20 @@ var guesses = []
 var zones = []
 var factory = Vector2()
 var upgrade = ""
+var severity_min = 4
+var severity_max = 10
+onready var level_label = $"%Level"
+onready var adaptibility_label = $"%Adaptibility"
+onready var velocity_label = $"%Velocity"
+onready var frequency_label = $"%Frequency"
+onready var severity_label = $"%Severity"
+onready var zone_label = $"%Zone"
 onready var response_label = $"%Response"
 onready var keywords_label = $"%Keywords"
 onready var guesses_container = $"%Guesses"
 onready var command_label = $"%Command"
 onready var overlay = $Overlay
+
 
 func _ready():
 	randomize()
@@ -51,7 +60,16 @@ func _ready():
 func init():
 	state = STATES.WELCOME
 	response_label.text = responses[state].replace("UPGRADE", upgrade)
+	update_stats()
 	generate()
+	
+func update_stats():
+	var player = get_parent().player
+	level_label.text = "Target acquired: Looper V" + str(player.level)
+	adaptibility_label.text = "Adaptibility: " + str(player.adaptabilities[player.adaptability])
+	velocity_label.text = "Velocity: " + str(player.velocities[player.velocity])
+	frequency_label.text = "Frequency: " + str(player.frequencies[player.frequency])
+	severity_label.text = "Severity: " + str(player.severities[player.severity][0]) + "-" + str(player.severities[player.severity][1])
 	
 func generate():
 	print("f", factory)
@@ -84,7 +102,7 @@ func generate():
 		var player_position = get_parent().get_player_room_position()
 		keywords.append(coords[player_position.x])
 		keywords.append(str(player_position.y))
-		for i in range(3):
+		for _i in range(3):
 			var r = randi() % 10
 			if not keywords.has(coords[r]):
 				keywords.append(coords[r])
@@ -142,8 +160,14 @@ func execute_command():
 	if words.size() != 4:
 		state = STATES.INVALID
 		command_label.text = ""
+		response_label.text = responses[state]
 		return
 	if command.begins_with("deploy entity"):
+		if upgrade == "Void":
+			state = STATES.INVALID
+			command_label.text = ""
+			response_label.text = responses[state]
+			return
 		var pos = Vector2(coords.find(words[2]), int(words[3]))
 		if factory == pos:
 			state = STATES.DEPLOYED
@@ -154,7 +178,7 @@ func execute_command():
 	if command.begins_with("unlock gateway"):
 		var pos = Vector2(coords.find(words[2]), int(words[3]))
 		for zone in zones:
-			if zone.door.room_position == pos:
+			if zone.door and zone.door.room_position == pos:
 				zone.door.unlock()
 				state = STATES.UNLOCKED
 				command_label.text = ""

@@ -15,7 +15,7 @@ var map_position = Vector2()
 var current_zone_position = Vector2()
 var zone = null
 var current_room = null
-var upgrades = ["adaptability", "velocity", "severity", "frequency"]
+var upgrades = ["Adaptability", "Velocity", "Severity", "Frequency"]
 onready var tilemap = $TileMap
 onready var tilemap2 = $TileMap2
 onready var player = $Looper
@@ -24,6 +24,7 @@ onready var panel = $BreakerPanel
 func _ready():
 	# Seed the RNG
 	rng.seed = OS.get_ticks_usec()
+	upgrades.shuffle()
 
 	generate_room(Vector2(0, 0))
 	add_neighbors(Vector2(0, 0))
@@ -46,6 +47,7 @@ func _process(_delta):
 			panel.zones = room.neighbors
 			panel.factory = room.factory
 			panel.upgrade = room.upgrade
+			panel.zone_label.text = "Current zone: " + room.upgrade
 			panel.init()
 
 func generate_room(zone_position: Vector2):
