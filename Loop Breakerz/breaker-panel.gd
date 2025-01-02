@@ -41,6 +41,8 @@ var factory = Vector2()
 var upgrade = ""
 var severity_min = 4
 var severity_max = 10
+var time = 0
+onready var time_label = $"%Time"
 onready var level_label = $"%Level"
 onready var adaptibility_label = $"%Adaptibility"
 onready var velocity_label = $"%Velocity"
@@ -152,6 +154,7 @@ func execute_command():
 				response_label.text = responses[state].replace("UPGRADE", upgrade)
 				generate()
 				get_parent().player.revive()
+				time = 0
 				return
 		state = STATES.RESET
 		command_label.text = ""
@@ -244,3 +247,13 @@ func eliminate():
 	command_label.text = ""
 	response_label.text = responses[state]
 	generate()
+
+
+func _on_timer_timeout():
+	if get_parent().player.died:
+		return
+	time += 0.09
+	var minutes = int(time / 60)
+	var secs = int(time) % 60
+	var milliseconds = int((time - int(time)) * 100)  # Extract milliseconds
+	time_label.text = "Time since breach: %02d:%02d.%02d" % [minutes, secs, milliseconds]

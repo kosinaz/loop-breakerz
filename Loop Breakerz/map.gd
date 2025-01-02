@@ -6,6 +6,7 @@ var tile_id = 0  # ID for walkable tiles
 var door_scene = preload("res://door.tscn")
 var incrementer_scene = preload("res://incrementer.tscn")
 var iterator_scene = preload("res://iterator.tscn")
+var skipper_scene = preload("res://skipper.tscn")
 var upgrade_scene = preload("res://upgrade.tscn")
 var rng = RandomNumberGenerator.new()
 var zones = {}
@@ -16,6 +17,12 @@ var current_zone_position = Vector2()
 var zone = null
 var current_room = null
 var upgrades = ["Adaptability", "Velocity", "Severity", "Frequency"]
+var enemies_over_time = [
+	{"limit": 15, "incrementer": 1},
+	{"limit": 20, "incrementer": 2, "iterator": 1},
+	{"limit": 25, "incrementer": 5, "iterator": 10, "skipper": 1},
+	{"limit": 1, "skipper": 1},
+]
 onready var tilemap = $TileMap
 onready var tilemap2 = $TileMap2
 onready var player = $Looper
@@ -202,10 +209,9 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 func _on_timer_timeout():
 	if player.died:
 		return
-	if randi() % 6:
-		add_enemy(incrementer_scene)
-	else:
-		add_enemy(iterator_scene)
+	var minute = int(panel.time / 60)
+	var enemies = enemies_over_time[minute]
+	add_enemy(skipper_scene)
 		
 func add_enemy(scene):
 	if not zones.has(current_zone_position):

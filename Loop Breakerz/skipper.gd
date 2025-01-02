@@ -1,78 +1,49 @@
 extends KinematicBody2D
 
 # Declare variables
-var speed = 20
-var shoot_cooldown = 1.0 # Time between shots
-var velocity = Vector2()
-var target_player = null  # The player to chase
-export(PackedScene) var projectile_scene
+var speed = 10
+var projectile_scene = preload("res://projectile_skipper.tscn")
+onready var target_player = $"../Looper"
+export var health = 1
+var explosion_scene = preload("res://explosion_big.tscn")
+var token_scene = preload("res://token.tscn")
 
-onready var timer = $Timer  # Assuming the Timer node is a child of the enemy node
-
-# Movement direction (up, down, left, right)
-var move_direction = Vector2()
-
-# Maximum distance before changing direction
-var direction_change_distance = 8
-
-# Last position the enemy was at
-var last_position = Vector2()
-
-# Timer to change direction
-var direction_change_timer = 0.0
-
-# Setup enemy's timer
-func _ready():
-	# Find the player node, assuming it's in the scene tree
-	target_player = get_node("/root/Map/Looper")
-	timer.start(shoot_cooldown)
-
-func _process(_delta):
+func _process(delta):
 	# Make the enemy chase the player
-	if target_player:
-		# Calculate the direction vector to the player
-		var direction_to_player = (target_player.global_position - global_position).normalized()
+	if not target_player:
+		return
+		
+	if target_player.died:
+		return
+	
+	# Move the enemy
+# warning-ignore:return_value_discarded
+	move_and_collide(position.direction_to(target_player.position) * speed * delta)
 
-		# Determine the closest cardinal direction (up, down, left, right)
-		# Get the absolute X and Y distances to the player
-		var x_distance = abs(direction_to_player.x)
-		var y_distance = abs(direction_to_player.y)
+	# Rotate the enemy to face the player
+	var direction = global_position.direction_to(target_player.global_position)
 
-		# Determine the cardinal direction based on which axis has the greater distance
-		if x_distance > y_distance:
-			# Move left or right
-			if direction_to_player.x > 0:
-				move_direction = Vector2(1, 0)  # Move right
-			else:
-				move_direction = Vector2(-1, 0)  # Move left
-		else:
-			# Move up or down
-			if direction_to_player.y > 0:
-				move_direction = Vector2(0, 1)  # Move down
-			else:
-				move_direction = Vector2(0, -1)  # Move up
+	rotation = lerp_angle(rotation, atan2(direction.y, direction.x), 0.1)
 
-		# Move the enemy
-		velocity = move_direction * speed
-		# warning-ignore:return_value_discarded
-		move_and_slide(velocity)
-
-		# Rotate the enemy to face the player
-		rotation = direction_to_player.angle()
-
-	# Check if the enemy has moved at least 8 pixels from its last position
-	if global_position.distance_to(last_position) >= direction_change_distance:
-		# Update the last position
-		last_position = global_position  # Update last position
 
 func _on_timer_timeout():
-	# Shoot at the player (implement projectile spawn or action here)
-	shoot_at_player()
-
-func shoot_at_player():
 	var projectile = projectile_scene.instance()
 	projectile.global_position = global_position
 	projectile.rotation = rotation
-	var direction_to_player = (target_player.global_position - global_position).normalized()
-	projectile.set_direction(direction_to_player)
+	projectile.damage = [1, 3]
+	projectile.set_direction(position.direction_to(target_player.position))
 	get_parent().add_child(projectile)
+	
+func take_damage(amount):
+	health -= amount
+	if health <= 0:
+		die()
+
+func die():
+	var explosion = explosion_scene.instance()
+	explosion.global_position = global_position
+	get_parent().add_child(explosion)
+	var token = token_scene.instance()
+	token.global_position = global_position
+	get_parent().add_child(token)
+	queue_free()
