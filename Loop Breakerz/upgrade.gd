@@ -13,15 +13,15 @@ func set_type(new_upgrade_type):
 func _on_token_body_entered(body):
 	if body.name != "Looper":
 		return
-	if upgrade_type == "Adaptability":
+	if upgrade_type == "Adaptability" and body.adaptability < 20:
 		body.adaptability += 1
 		body.health_bar.max_value = body.adaptabilities[body.adaptability]
-	if upgrade_type == "Frequency":
+	if upgrade_type == "Frequency" and body.frequency < 20:
 		body.frequency += 1
 		body.get_node("AttackTimer").wait_time = body.frequencies[body.frequency]
-	if upgrade_type == "Severity":
+	if upgrade_type == "Severity" and body.severity < 20:
 		body.severity += 1
-	if upgrade_type == "Velocity":
+	if upgrade_type == "Velocity" and body.velocity < 20:
 		body.velocity += 1
 	body.health = body.adaptabilities[body.adaptability]
 	body.health_bar.value = body.health

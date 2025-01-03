@@ -210,7 +210,7 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 func _on_timer_timeout():
 	if player.died:
 		return
-	if int(panel.time / 60) > minute:
+	if int(panel.time / 60) > minute and minute < enemies_over_time.size() - 1:
 		enemy_pool.resize(0)
 		minute = int(panel.time / 60)
 		current_enemies = enemies_over_time[minute]
