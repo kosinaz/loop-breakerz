@@ -16,13 +16,17 @@ var map_position = Vector2()
 var current_zone_position = Vector2()
 var zone = null
 var current_room = null
+var minute = -1
 var upgrades = ["Adaptability", "Velocity", "Severity", "Frequency"]
 var enemies_over_time = [
-	{"limit": 15, "incrementer": 1},
-	{"limit": 20, "incrementer": 2, "iterator": 1},
-	{"limit": 25, "incrementer": 5, "iterator": 10, "skipper": 1},
-	{"limit": 1, "skipper": 1},
+	{"incrementer": 15},
+	{"incrementer": 17, "iterator": 3},
+	{"incrementer": 18, "iterator": 6, "skipper": 1},
+	{"incrementer": 10, "iterator": 12, "skipper": 3},
+	{"iterator": 19, "skipper": 6},
 ]
+var current_enemies = {}
+var enemy_pool = []
 onready var tilemap = $TileMap
 onready var tilemap2 = $TileMap2
 onready var player = $Looper
@@ -37,9 +41,6 @@ func _ready():
 	add_neighbors(Vector2(0, 0))
 	
 	player.position = tilemap.map_to_world(zones[Vector2()].position + zones[Vector2()].factory) + Vector2(16, 16)
-	
-	for _i in range(3):
-		add_enemy(incrementer_scene)
 	
 func _process(_delta):
 	$Camera2D.position = player.position + Vector2(-53, 0)
@@ -209,14 +210,35 @@ func connect_rooms(zone_a_position: Vector2, zone_b_position: Vector2):
 func _on_timer_timeout():
 	if player.died:
 		return
-	var minute = int(panel.time / 60)
-	var enemies = enemies_over_time[minute]
-	add_enemy(skipper_scene)
+	if int(panel.time / 60) > minute:
+		enemy_pool.resize(0)
+		minute = int(panel.time / 60)
+		current_enemies = enemies_over_time[minute]
+	if enemy_pool.size() == 0:
+		if current_enemies.has("incrementer"):
+			var incrementers = []
+			incrementers.resize(current_enemies.incrementer)
+			incrementers.fill("incrementer")
+			enemy_pool += incrementers
+		if current_enemies.has("iterator"):
+			var iterators = []
+			iterators.resize(current_enemies.iterator)
+			iterators.fill("iterator")
+			enemy_pool += iterators
+		if current_enemies.has("skipper"):
+			var skippers = []
+			skippers.resize(current_enemies.skipper)
+			skippers.fill("skipper")
+			enemy_pool += skippers
+		enemy_pool.shuffle()
+	add_enemy(enemy_pool.pop_front())
 		
-func add_enemy(scene):
+func add_enemy(enemy_type):
 	if not zones.has(current_zone_position):
 		return
-	if get_enemies_in_room(zones[current_zone_position]).size() > 25:
+	if not current_enemies.has(enemy_type):
+		return
+	if get_enemies_in_room(enemy_type, zones[current_zone_position]).size() > current_enemies[enemy_type]:
 		return
 	var room = zones[current_zone_position]
 	var rect = Rect2(tilemap.map_to_world(room.position), tilemap.map_to_world(room.size))
@@ -226,16 +248,20 @@ func add_enemy(scene):
 	var room_position = zones[current_zone_position].position
 	var spawner = zones[current_zone_position].spawners.pop_front()
 	zones[current_zone_position].spawners.append(spawner)
+	var scene = load("res://" + enemy_type + ".tscn")
 	var enemy = scene.instance()
 	enemy.position = tilemap.map_to_world(room_position + spawner) + Vector2(16, 16)
 	add_child(enemy)
 
-func get_enemies_in_room(room):
+func get_enemies_in_room(enemy_type, room):
 	var rect = Rect2(tilemap.map_to_world(room.position), tilemap.map_to_world(room.size))
 	var enemies = []
 	for enemy in get_tree().get_nodes_in_group("enemies"):
-		if rect.has_point(enemy.position):
-			enemies.append(enemy)
+		if not rect.has_point(enemy.position):
+			continue
+		if not enemy_type.is_subsequence_of(enemy.name.to_lower()):
+			continue
+		enemies.append(enemy)
 	return enemies
 
 func deploy_upgrade():
