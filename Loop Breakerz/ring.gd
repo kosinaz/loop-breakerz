@@ -36,6 +36,4 @@ func _process(delta):
 func _on_ring_body_entered(body):
 	if not body.is_in_group("enemies"):
 		return
-	var damage = 50 + randi() % 50
-	if body.has_method("take_damage"):
-		body.take_damage(damage)
+	body.die(true)

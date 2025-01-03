@@ -32,11 +32,12 @@ func take_damage(amount):
 	if health <= 0:
 		die()
 
-func die():
+func die(ring_of_death = false):
 	var explosion = explosion_scene.instance()
 	explosion.global_position = global_position
 	get_parent().add_child(explosion)
-	var token = token_scene.instance()
-	token.global_position = global_position
-	get_parent().add_child(token)
+	if not ring_of_death:
+		var token = token_scene.instance()
+		token.global_position = global_position
+		get_parent().add_child(token)
 	queue_free()
